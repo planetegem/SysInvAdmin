@@ -1,0 +1,162 @@
+/* MAIN CSS FOR FORM TEMPLATES */
+
+/* DB index */
+section.db-overview {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    gap: 1em;
+    border-right: 1px solid var(--light60Grey);
+    background-color: white;
+
+    &>header {
+        padding: 1em 2em 0;
+    }
+
+    &>button {
+        align-self: start;
+
+        &>a {
+            padding: 0.5em 2em;
+            width: 100%;
+        }
+    }
+}
+
+header.db-overview {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    & h4 {
+        font-size: 1.2em;
+        color: var(--mainGrey);
+        text-align: center;
+    }
+
+    & form.name-date-toggle {
+        margin-top: 0.5em;
+    }
+}
+
+nav.db-overview {
+    border: dashed 1px var(--light60Grey);
+    border-radius: 0.15em;
+    padding: 0.15em 0;
+    height: 66vh;
+    overflow: hidden;
+
+    & .container {
+        overflow-y: scroll;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* Create / update / delete */
+section.db-form {
+    & div.pink-border {
+        margin: 2.5em;
+    }
+}
+
+form.db-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.25em 4%;
+    position: relative;
+    width: 80vh;
+    box-sizing: border-box;
+
+    &>header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 1em;
+        width: 65vh;
+        line-height: 1.4;
+
+        &>h3 {
+            font-family: Bungee;
+            color: var(--mainPink);
+            text-align: center;
+            font-size: 1.1em;
+            margin-bottom: 0.5em;
+        }
+
+        &>p {
+            text-align: center;
+            font-size: 0.95em;
+            color: var(--mainGrey);
+        }
+    }
+
+    &>main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5em;
+        width: 100%;
+        margin: 1.5em auto;
+
+        & div.titled-divider {
+            margin: 1em auto 0.5em;
+        }
+    }
+
+    &>footer {
+        & nav {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5em;
+            margin: 1.5em 0 3em;
+
+            & .action-button {
+                padding: 0.5em 2em;
+            }
+        }
+
+    }
+
+    & .error-list {
+        color: var(--mainGrey);
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        justify-content: center;
+    }
+
+    & .error-list:has(li.error-item) {
+        margin: 1em 0;
+        padding: 0.5em;
+        color: var(--errorRed);
+        border: 1px dashed var(--errorRed);
+        border-radius: 0.5em;
+    }
+}
+
+form.db-form.delete {
+    padding-right: 7.5em;
+    padding-left: 7.5em;
+    width: fit-content;
+
+    & > header {
+        width: fit-content;
+    }
+    & > main  {
+        margin: 0 auto 1em;
+        gap: 0.5em;
+        text-align: left;
+        line-height: 1.5em;
+
+        & > ul {
+            text-align: left;
+        }
+    }
+    
+
+}

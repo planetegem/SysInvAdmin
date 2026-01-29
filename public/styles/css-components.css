@@ -1,0 +1,110 @@
+/* BORDERS */
+.pink-border {
+    border: solid 0.1em var(--mainPink);
+    width: fit-content;
+    padding: 0.2em;
+    border-radius: 0.5em;
+    background-color: white;
+
+    &>* {
+        border: solid 0.1em var(--mainPink);
+        border-radius: 0.3em;
+    }
+}
+
+/* UL (UNDO UNSET:ALL) */
+& ul.unordered-list {
+    margin: 0.75em 0 0;
+    list-style: square;
+    list-style-position: outside;
+
+    &>li {
+        display: list-item;
+    }
+}
+
+/* SUBMIT BUTTON IN FORMS */
+button.action-button,
+a.action-button,
+label.action-button {
+    text-align: center;
+    background-color: var(--light40Pink);
+    color: white;
+    font-weight: bold;
+    border-radius: 0.25em;
+    display: flex;
+    justify-content: center;
+}
+
+
+button.action-button:hover,
+a.action-button:hover,
+label.action-button:hover {
+    cursor: pointer;
+    background-color: var(--mainPink);
+}
+
+button.action-button.passive,
+a.action-button.passive,
+label.action-button.passive,
+button.action-button.delete,
+a.action-button.delete {
+    filter: grayscale(50);
+}
+
+label.action-button.passive:hover {
+    filter: grayscale(0);
+}
+
+button.action-button.delete:hover,
+a.action-button.delete:hover {
+    filter: grayscale(0);
+    background-color: var(--errorRed);
+}
+
+
+/* CUSTOM CHECKBOX */
+.checkbox-container {
+    & label {
+        display: grid;
+        grid-template-columns: 1em auto;
+        gap: 0.5em;
+        color: currentColor;
+    }
+
+    & label:hover {
+        cursor: pointer;
+    }
+
+    & input[type="checkbox"] {
+        -webkit-appearance: none;
+        appearance: none;
+        margin: 0;
+        font: inherit;
+        color: currentColor;
+        width: 1.15em;
+        height: 1.15em;
+        border: 0.15em solid currentColor;
+        border-radius: 0.15em;
+        transform: translateY(-0.075em);
+        display: grid;
+        place-content: center;
+    }
+
+    & input[type="checkbox"]:hover {
+        cursor: pointer;
+    }
+
+    & input[type="checkbox"]::before {
+        content: "";
+        width: 0.65em;
+        height: 0.65em;
+        transform: scale(0);
+        transition: 120ms transform ease-in-out;
+        box-shadow: inset 1em 1em currentColor;
+    }
+
+    & input[type="checkbox"]:checked::before {
+        transform: scale(1);
+    }
+}

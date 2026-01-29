@@ -1,0 +1,147 @@
+/* Main body */
+body.main {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "aside main";
+    grid-template-rows: auto 1fr;
+    grid-template-columns: auto 1fr;
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+
+    &>header {
+        grid-area: header;
+        padding: 1rem;
+    }
+
+    &>aside {
+        grid-area: aside;
+        padding-top: 0.5em;
+    }
+
+    &>main {
+        grid-area: main;
+        position: relative;
+    }
+
+    &>main::before {
+        content: "";
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        box-shadow: inset 1px 1px 0.3rem var(--mainGrey), 1px 1px 0.5rem var(--light60Pink);
+        border-radius: 0.5em 0 0;
+        pointer-events: none;
+        z-index: 5;
+    }
+}
+
+/* Dashboard (top navigation) */
+header.dashboard {
+    display: grid;
+    justify-items: end;
+    grid-auto-flow: column;
+    align-items: center;
+    font-size: 1.125em;
+    background-color: white;
+    z-index: 15;
+
+    & a.logo {
+        user-select: none;
+        font-size: 1.35em;
+    }
+
+    & a.logo:hover {
+        cursor: pointer;
+    }
+
+    & nav.top-left-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-self: flex-start;
+    }
+
+    & nav.top-right-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        font-size: 0.9em;
+    }
+
+    & button.action-button {
+        padding: 0.5em 2em;
+        margin-left: 2em;
+    }
+
+    & a.top-right-header {
+        color: var(--mainGrey);
+        margin: 0 0.75em;
+    }
+
+    & a.top-right-header:hover {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+}
+
+/* Side navigation */
+nav.inventory-menu {
+    height: 100%;
+
+    &>ul {
+        display: grid;
+        grid-auto-flow: row;
+        gap: 0.5em;
+        padding: 0 1em;
+        color: var(--mainGrey);
+    }
+}
+
+/* Inventory */
+main.inventory {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto;
+    overflow-y: scroll;
+    background-color: var(--light90Grey);
+    font-size: 0.9em;
+
+    &>section.db-overview {
+        align-self: start;
+        padding: 1.5em 3em;
+        box-sizing: border-box;
+        min-height: 100%;
+    }
+
+    &>section.db-form {
+        align-self: start;
+        box-sizing: border-box;
+    }
+}
+
+/* Under construction page */
+main.inventory.under_construction {
+    grid-template-columns: auto;
+
+    >div {
+        margin: 30vh auto;
+        display: flex;
+        flex-direction: column;
+        color: var(--mainGrey);
+        align-items: center;
+
+        p {
+            font-size: 1.35em;
+            font-variant: small-caps;
+        }
+
+        svg {
+            fill: currentColor;
+            margin: 0.5em;
+            height: 2em;
+            width: 2em;
+        }
+    }
+}

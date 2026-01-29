@@ -1,0 +1,278 @@
+/* LOGO */
+h1.logo {
+    font-family: Bungee;
+    color: var(--mainPink);
+    display: block;
+    user-select: none;
+
+    & small {
+        font-size: 0.6em;
+        opacity: 0.6;
+    }
+}
+
+h1.logo.small {
+    & small {
+        font-size: 0.4em;
+    }
+}
+
+/* ERROR ITEM */
+li.error-item {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    color: currentColor;
+    align-items: flex-start;
+    margin: 0.5em;
+
+    & svg {
+        fill: currentColor;
+        height: 1em;
+    }
+
+    & p {
+        color: currentColor;
+        text-align: left;
+        line-height: 1em;
+    }
+}
+
+/* MENU ITEM */
+li.menu-item {
+    border-radius: 0.5em;
+    font-weight: bold;
+
+    & a {
+        display: grid;
+        grid-template-rows: auto auto;
+        justify-items: center;
+        gap: 0.15em;
+        padding: 0.6em;
+        padding-bottom: 0.8em;
+    }
+
+    & svg {
+        fill: currentColor;
+        height: 1em;
+    }
+
+    & h2 {
+        color: currentColor;
+        padding: 0 0.4em;
+    }
+}
+
+li.menu-item.selected {
+    background-color: var(--light50Pink);
+    color: white;
+}
+
+li.menu-item:hover {
+    cursor: pointer;
+    background-color: var(--light90Grey);
+}
+
+li.menu-item.selected:hover {
+    background-color: var(--light30Pink);
+    color: white;
+}
+
+/* INDEX ITEM */
+.index-item {
+    display: grid;
+    grid-template-areas:
+        "name icon"
+        "timestamp icon";
+    grid-template-rows: auto auto;
+    align-items: start;
+    justify-content: space-between;
+    padding: 0.4em 0.5em;
+
+    & h5 {
+        grid-area: name;
+        font-size: 1.1em;
+        margin-right: 0.4em;
+    }
+
+    & span {
+        grid-area: timestamp;
+        font-size: 0.85em;
+    }
+
+    & svg {
+        grid-area: icon;
+        fill: var(--mainGrey);
+        height: 2em;
+        margin-right: 0.2em;
+        margin-left: 0.4em;
+    }
+}
+
+.index-item:hover {
+    background-color: var(--light90Grey);
+    cursor: pointer;
+}
+
+.index-item.selected {
+    background-color: var(--light80Grey);
+}
+
+/* NAME AND DATE TOGGLE */
+form.name-date-toggle {
+    opacity: 0.7;
+    font-size: 0.85em;
+
+    & span {
+        display: inline-block;
+        user-select: none;
+    }
+
+    & a:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    & a.selected {
+        text-decoration: underline;
+    }
+}
+
+/* TOOLTIP */
+span.tooltip {
+    position: relative;
+    color: var(--mainGrey);
+
+    & svg {
+        fill: currentColor;
+        width: 1em;
+        height: 1em;
+    }
+
+    &>span {
+        position: absolute;
+        top: 0;
+        right: 0;
+        visibility: hidden;
+        z-index: 5;
+        background-color: var(--mainPink);
+        color: white;
+        padding: 0.75em 1em;
+        border-radius: 0.5em;
+        text-align: justify;
+        width: max-content;
+        max-width: 25em;
+        display: flex;
+        flex-direction: column;
+    }
+
+    & ul {
+        list-style: square;
+        list-style-position: outside;
+        margin: 0.5em 0.5em 0.5em 1.5em;
+    }
+
+    & li {
+        display: list-item;
+    }
+}
+
+span.tooltip:hover {
+    cursor: help;
+
+    & span {
+        visibility: visible;
+    }
+}
+
+/* EXIT BUTTON */
+a.exit-button,
+button.exit-button {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    width: 1em;
+    height: 1em;
+    border-radius: 0.9em;
+    padding: 0.4em;
+
+    & svg {
+        width: 100%;
+        height: 100%;
+        fill: var(--mainGrey);
+    }
+}
+
+a.exit-button:hover,
+button.exit-button:hover {
+    cursor: pointer;
+    background-color: var(--light90Grey);
+
+    & svg {
+        fill: black;
+    }
+}
+
+/* Poppable balloon: a checkbox that can be clicked away */
+span.poppable-balloon {
+    display: none;
+    align-items: center;
+    outline: solid 1px var(--mainGrey);
+    border-radius: 0.5em;
+    padding: 0.35em 0.5em;
+    margin: 0.2em;
+    user-select: none;
+    color: var(--mainGrey);
+    order: 0;
+
+    & label {
+        width: 1em;
+        height: 1em;
+        margin-left: 0.3em;
+    }
+
+    & svg {
+        margin: auto;
+        width: 100%;
+        height: 100%;
+        fill: currentColor;
+    }
+
+    & label:hover {
+        cursor: pointer;
+    }
+
+    & input {
+        display: none;
+    }
+}
+
+span.poppable-balloon:has(input:checked) {
+    display: flex;
+}
+
+span.poppable-balloon:has(label:hover) {
+    outline-color: black;
+    color: black;
+}
+
+/* RETURN MESSAGE */
+dialog.open.modal form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1em 2.5em;
+    font-size: 1.1em;
+    text-align: center;
+    max-width: 100vh;
+
+    & p {
+        color: var(--mainGrey);
+        margin: 1em auto 1.5em;
+    }
+
+    & .action-button {
+        padding: 0.5em 1em;
+        font-size: 1em;
+    }
+}

@@ -1,0 +1,41 @@
+:root {
+    --backgroundColor: #ffffff;
+    --backgroundPink: #6c6c6c0e;
+
+    --mainPink: #ff9f9f;
+
+    --light20Pink: #ffb2b2;
+    --light30Pink: #ffbcbc;
+    --light40Pink: #ffc5c5;
+    --light50Pink: #ffcfcf;
+    --light60Pink: #ffd9d9;
+    --light80Pink: #ffecec;
+
+    --mainGrey: #6c6c6c;
+    --light60Grey: #c4c4c4;
+    --light80Grey: #e2e2e2;
+    --light90Grey: #f0f0f0;
+
+    --errorRed: #d14444;
+
+}
+
+html, body, main {
+    padding: 0; margin: 0;
+}
+body {
+    background-color: var(--backgroundColor);
+    font-family: Arial, Helvetica, sans-serif;
+}
+h1, h2, h3, h4, h5, span, small, p, button, a, ul, li {
+    all: unset;
+}
+
+@font-face {
+    font-family: Bungee;
+    src: url(fonts/BungeeInline-Regular.ttf);
+}
+
+
+
+

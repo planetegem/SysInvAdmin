@@ -1,0 +1,158 @@
+/* SUBDIVIDERS USED IN FORMS */
+
+/* Titled divider: a header used to divide forms in sections */
+.titled-divider, .foldable-divider > summary {
+    width: 65%;
+    margin: auto;
+    height: 1px;
+    border-bottom: solid 1px var(--mainGrey);
+    color: var(--mainGrey);
+    position: relative;
+
+    & h4 {
+        display: flex;
+        font-size: 0.9em;
+        background-color: white;
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: max-content;
+        margin: auto;
+        padding: 0 0.5em 0 0.25em;
+        align-items: center;
+
+        & span.tooltip {
+            display: flex;
+            margin: 0 0.25em 0 0.5em;
+            align-items: center;
+        }
+
+        & > svg {
+            fill: currentColor;
+            height: 1em;
+        }
+
+    }
+}
+
+details.foldable-divider {
+    width: 100%;
+    margin-top: 1em;
+
+    & > summary {
+        user-select: none;
+    }
+    & > summary::marker {
+        content: "";
+    }
+    & > summary:hover {
+        cursor: pointer;
+    }
+    & > section.large-bordered-input-element {
+        margin-top: 2em;
+    }
+}
+details.foldable-divider[open] summary svg {
+    rotate: 90deg;
+}
+
+/* Variations on positioning in form (small subdividers) */
+div.text-and-dropdown-input {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 5%;
+    width: 100%;
+
+    & label.text-input.dropdown {
+        width: fit-content !important;
+    }
+
+}
+
+div.text-and-dropdown-input label.text-input {
+    width: 100%;
+}
+
+div.double-input {
+    display: grid;
+    grid-template-columns: 35% 1fr;
+    width: 90%;
+    gap: 1.75em;
+    margin: 0.75em 0;
+
+    & label.text-input {
+        width: 100%;
+    }
+}
+
+/* Large subdivider with inbuilt header */
+section.large-input-element {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+
+    &>header {
+        margin: 1em auto 2.5em;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        color: var(--mainGrey);
+        width: 90%;
+        text-align: center;
+        line-height: 1.4;
+
+        & p {
+            font-size: 0.95em;
+        }
+
+        & span.tooltip {
+            display: flex;
+            margin-left: 0.5em;
+            align-items: center;
+
+        }
+    }
+
+    &>main {
+        width: 90%;
+    }
+}
+
+/* Large subdivider with header overlaying border */
+section.large-bordered-input-element {
+    width: 100%;
+    border-radius: 0.5em;
+    border: solid 1px var(--light80Grey);
+    box-sizing: border-box;
+    position: relative;
+
+    &>header {
+        display: flex;
+        user-select: none;
+        font-size: 0.9em;
+        position: absolute;
+        display: inline-block;
+        color: var(--mainGrey);
+        top: -0.75em;
+        padding: 0 0.35em;
+        left: 0;
+        right: 0;
+        margin: auto;
+        background-color: white;
+        width: max-content;
+    }
+
+    &>main {
+        margin: 2.25em;
+    }
+
+    &>span.tooltip {
+        position: absolute;
+        right: 1em;
+        top: 1em;
+        color: var(--mainGrey);
+    }
+}
