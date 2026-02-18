@@ -96,16 +96,16 @@ class Item extends Model
     {
         $relationships = [];
 
-        foreach($this->parents as $parent){
-            $relationships[] = [
-                'relationship' => $parent->pivot->relationship,
-                'item' => $parent->id
-            ];
-        }
         foreach($this->children as $child){
             $relationships[] = [
-                'relationship' => $this->reverseRelationship($child->pivot->relationship),
+                'relationship' => $child->pivot->relationship,
                 'item' => $child->id
+            ];
+        }
+        foreach($this->parents as $parent){
+            $relationships[] = [
+                'relationship' => $this->reverseRelationship($parent->pivot->relationship),
+                'item' => $parent->id
             ];
         }
         return $relationships;

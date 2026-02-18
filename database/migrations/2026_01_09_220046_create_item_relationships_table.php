@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('relationship');
             $table->foreignId('subject_item_id')->references('id')->on('items')->onDelete('cascade');
             $table->foreignId('direct_object_item_id')->references('id')->on('items')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('description');
             $table->string('type');
             $table->foreignId('language_id')->references('id')->on('languages');
+            $table->string(column: 'file_type')->nullable();
         });
     }
 

@@ -15,7 +15,7 @@ class ItemRelationshipManager extends Component
     public function __construct($item)
     {
         $this->item = $item;
-        $this->possibleRelations = Item::where('type', 'master')->orderBy('title')->get();
+        $this->possibleRelations = Item::where('type', 'master')->whereNot('id', $item->id)->orderBy('title')->get();
     }
 
     public function render(): View|Closure|string

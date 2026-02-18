@@ -10,9 +10,8 @@
         type="text" 
         name="{{ $name }}" 
         id="{{ $name }}"
-        value="{{ $value }}"
+        value="{!! $value !!}"
         @if(!$optional) required @endif
         @error($name) placeholder="{{ $message }}" @enderror
     />
-    
 </label>

@@ -34,6 +34,16 @@ class ItemGate extends Controller
         }
         return $media;
     }
+
+    public static function composeSimpleItem($item)
+    {
+        $response = [
+            'id' => $item->id,
+            'title' => $item->title,
+            'media' => ItemGate::composeMedia($item),
+        ];
+        return $response;
+    }
     public static function composeItem($item, $fulltree = false)
     {
         $response = [
@@ -69,7 +79,12 @@ class ItemGate extends Controller
                 ];
             }, $item->relationships());
         } else {
-            $response['relationships'] = $item->relationships();
+             $response['relationships'] = array_map(function($relationship){
+                return [
+                    'relationship' => $relationship['relationship'],
+                    'item' => ItemGate::composeSimpleItem(Item::where('id', $relationship['item'])->with(ItemGate::$companions)->first())
+                ];
+            }, $item->relationships());
         }      
 
         return $response;
@@ -77,7 +92,6 @@ class ItemGate extends Controller
 
     public static function composeItems($items)
     {
-        
         $processed = $items->map(fn($item) => ItemGate::composeItem($item));
         return $processed;
     }
