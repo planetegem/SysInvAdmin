@@ -9,6 +9,7 @@
             </nav>
 
             <nav class="top-right-header">
+                <a class="top-right-header" href="/api/documentation" target="_self">documentation</a>
 
                 @if (Auth::check() && auth()->user()->role != 'user')
                     <a class="top-right-header" href="/admin" target="_self">admin</a>

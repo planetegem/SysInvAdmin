@@ -1,0 +1,437 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SysInvAdmin public API",
+        "description": "This is the API documentation for the SysInvAdmin API.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Local Development (Artisan Serve)"
+        },
+        {
+            "url": "https://inventory.planetegem.be",
+            "description": "Production Server"
+        }
+    ],
+    "paths": {
+        "/api/items/index": {
+            "get": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "A simple item index, containing only the item id and slug. Useful to build URLs in the frontend.",
+                "operationId": "847d5b09fadec139fefffa3b1bad5cba",
+                "responses": {
+                    "200": {
+                        "description": "List of item references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Index"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/all": {
+            "get": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Fetch items",
+                "operationId": "ce23140ec4e988009737e435dd46c7a0",
+                "parameters": [
+                    {
+                        "name": "languages[]",
+                        "in": "query",
+                        "description": "Filter items by language (identified with id). Accepts multiple languages.",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    {
+                        "name": "categories[]",
+                        "in": "query",
+                        "description": "Filter items by category (identified with id). Accepts multiple categories.",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Define order in which to return items (descending or ascending, by creation date)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "descending"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Item"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/{item_id}": {
+            "get": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Fetch sepcific item, based on its internal id",
+                "operationId": "ba313462d35b67c915f57c5d3ea67688",
+                "parameters": [
+                    {
+                        "name": "item_id",
+                        "in": "path",
+                        "description": "Unique ID of the item",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 101
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Succes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Item"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories/index": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "A simple category index, containing only category id and slug. Useful for building URLs in the frontend.",
+                "operationId": "47960dfa49a618956f795615c187667a",
+                "responses": {
+                    "200": {
+                        "description": "List of category references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Index"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories/all": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Fetch all categories, including id's of related items",
+                "operationId": "3fac467eb785dbebd63a98204c501049",
+                "responses": {
+                    "200": {
+                        "description": "List of category references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Category"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories/{category_id}": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Fetch a specific category with its id, including full tree of all related items",
+                "operationId": "4ff0311372c9a6ea8f9f2a297e33d1eb",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "path",
+                        "description": "Unique ID of the category",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 101
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of category references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Category": {
+                "title": "Category",
+                "description": "A category used to label or tag items",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 11
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Het Vleeskanon"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "het-vleeskanon"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "The Meatcannon (all chapters)"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "A short (or absent) description of the category, for public use"
+                    },
+                    "meta_title": {
+                        "type": "string",
+                        "example": "SEO title of the category"
+                    },
+                    "meta_description": {
+                        "type": "string",
+                        "example": "SEO description of the category"
+                    },
+                    "hidden": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Item"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Index": {
+                "title": "Index",
+                "description": "Index containing id and slug, useful for building URL's",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "example-of-index-item"
+                    }
+                },
+                "type": "object"
+            },
+            "Language": {
+                "title": "Language",
+                "description": "A Language that an item might be expressed in",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "French"
+                    },
+                    "short_name": {
+                        "type": "string",
+                        "example": "fr"
+                    },
+                    "native_name": {
+                        "type": "string",
+                        "example": "français"
+                    }
+                },
+                "type": "object"
+            },
+            "Link": {
+                "title": "Link",
+                "description": "",
+                "properties": {
+                    "anchor": {
+                        "type": "string",
+                        "example": "visit the best site ever"
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "https://www.planetegem.be"
+                    }
+                },
+                "type": "object"
+            },
+            "Medium": {
+                "title": "Medium",
+                "description": "A type of medium attached to an item, with links to corresponding files",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "thumbnail"
+                    },
+                    "files": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "images/image.webp"
+                        ]
+                    },
+                    "alt": {
+                        "type": "string",
+                        "example": "An example image"
+                    }
+                },
+                "type": "object"
+            },
+            "Item": {
+                "title": "Item",
+                "description": "An item from the inventory",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 11
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-03-16T00:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-03-16T00:00:00.000000Z"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Mangerie Online, version 2"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "mangerie-online-version-2"
+                    },
+                    "description": {
+                        "type": "html",
+                        "example": "<p>A short description</p>"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "update"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/Language"
+                    },
+                    "media": {
+                        "$ref": "#/components/schemas/Medium"
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Category"
+                        }
+                    },
+                    "links": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Link"
+                        }
+                    },
+                    "relationships": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "relationship": {
+                                    "type": "string",
+                                    "example": "update"
+                                },
+                                "item": {
+                                    "$ref": "#/components/schemas/Item"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Items",
+            "description": "Manage inventory items, their updates and possible derivatives"
+        },
+        {
+            "name": "Categories",
+            "description": "Manage inventory categories (used to label items)"
+        }
+    ]
+}

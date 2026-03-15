@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Item extends Model
 {
@@ -80,29 +81,31 @@ class Item extends Model
     }
 
     // 3. Combines parents and children into nautral relationships
-    private function reverseRelationship($relationship){
-        switch($relationship){
+    private function reverseRelationship($relationship)
+    {
+        switch ($relationship) {
             case 'update':
                 return 'master';
             default:
                 return $relationship;
-        }       
+        }
     }
-    
-    public function hasRelationShips(){
+
+    public function hasRelationShips()
+    {
         return ($this->hasParents() || $this->hasChildren());
     }
     public function relationships()
     {
         $relationships = [];
 
-        foreach($this->children as $child){
+        foreach ($this->children as $child) {
             $relationships[] = [
                 'relationship' => $child->pivot->relationship,
                 'item' => $child->id
             ];
         }
-        foreach($this->parents as $parent){
+        foreach ($this->parents as $parent) {
             $relationships[] = [
                 'relationship' => $this->reverseRelationship($parent->pivot->relationship),
                 'item' => $parent->id
@@ -110,7 +113,7 @@ class Item extends Model
         }
         return $relationships;
     }
-    
+
     public function setRelationships($relationship)
     {
         if (!$relationship)
@@ -175,4 +178,14 @@ class Item extends Model
             <br>
             Has {$this->children->count()} dependencies | {$this->formattedTimestamps()}";
     }
+
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::saving(function ($model) {
+            $model->slug = Str::slug($model->title);
+        });
+    }
+
 }
