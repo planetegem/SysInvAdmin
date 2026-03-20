@@ -66,18 +66,18 @@ class ItemGate extends Controller
             new OA\Property(property: 'anchor', type: 'string', example: 'visit the best site ever'),
             new OA\Property(property: 'url', type: 'string', example: 'https://www.planetegem.be')
         ]
-    )] 
+    )]
     #[OA\Schema(
-            schema: "Medium",
-            title: "Medium",
-            description: "A type of medium attached to an item, with links to corresponding files",
-            type: "object",
-            properties: [
-                new OA\Property(property: 'type', type: 'string', example: 'thumbnail'),
-                new OA\Property(property: 'files', type: 'array', items: new OA\Items(type: "string"), example: ['images/image.webp']),
-                new OA\Property(property: 'alt', type: 'string', example: 'An example image'),
-            ]
-        )]
+        schema: "Medium",
+        title: "Medium",
+        description: "A type of medium attached to an item, with links to corresponding files",
+        type: "object",
+        properties: [
+            new OA\Property(property: 'type', type: 'string', example: 'thumbnail'),
+            new OA\Property(property: 'files', type: 'array', items: new OA\Items(type: "string"), example: ['images/image.webp']),
+            new OA\Property(property: 'alt', type: 'string', example: 'An example image'),
+        ]
+    )]
     #[OA\Schema(
         schema: "Item",
         title: "Item",
@@ -195,20 +195,38 @@ class ItemGate extends Controller
     // 2. Get all items, with optional parameters to filter by language or category id
     public static function all()
     {
-        // Build query step by step (adding filters as we go)
+        // Build query step by step
         $query = Item::with(ItemGate::getItemCompanions());
+
+        // Add language filter
+        // filter languages by name
         if (request()->query('languages')) {
             $query = $query->whereHas('language', function ($q) {
-                $q->whereIn('id', request()->query('languages'));
+                $q->whereIn('short_name', request()->query('languages'));
             });
         }
-        if (request()->query('categories')) {
-            $query = $query->whereHas('categories', function ($q) {
-                $q->whereIn('category_id', request()->query('categories'));
+        // or by id
+        if (request()->query('language_ids')) {
+            $query = $query->whereHas('language', function ($q) {
+                $q->whereIn('id', request()->query('language_ids'));
             });
         }
 
-        // Determine order
+        // Add category filter
+        // filter categories by slug
+        if (request()->query('categories')) {
+            $query = $query->whereHas('categories', function ($q) {
+                $q->whereIn('slug', request()->query('categories'));
+            });
+        }
+        // or by id
+        if (request()->query('category_ids')) {
+            $query = $query->whereHas('categories', function ($q) {
+                $q->whereIn('category_id', request()->query('category_ids'));
+            });
+        }
+
+        // Determine order (descending or ascending)
         if (request()->query('order') == 'ascending') {
             $items = $query->orderBy('created_at', 'asc')->get();
         } else {
@@ -224,12 +242,18 @@ class ItemGate extends Controller
     }
 
     // 3. Get single item
-    public static function get($id)
+    public static function get($param)
     {
-        $item = Item::where('id', $id)->with(ItemGate::getItemCompanions())->first();
+        // If parameter is an int, match it with an id
+        if (is_int($param))
+            $item = Item::where('id', $param)->with(ItemGate::getItemCompanions())->first();
+
+        // If parameter is a string, match it with a slug
+        if (is_string($param))
+            $item = Item::where('slug', $param)->with(ItemGate::getItemCompanions())->first();
 
         // If the item is an update to another item, fetch the real one
-        if ($item->type != 'master') {
+        if ($item && $item->type != 'master') {
             $masterId = $item->parents->first()->id;
             $item = Item::where('id', $masterId)->with(ItemGate::getItemCompanions())->first();
         }

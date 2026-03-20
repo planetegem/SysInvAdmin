@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use OpenApi\Attributes as OA;
 
 #[OA\Info(
@@ -59,7 +60,19 @@ class APIController extends Controller
         parameters: [
             new OA\Parameter(
                 name: 'languages[]',
-                description: 'Filter items by language (identified with id). Accepts multiple languages.',
+                description: 'Filter items by language (short name). Accepts multiple languages.',
+                in: 'query',
+                required: false,
+                style: 'form',
+                explode: true,
+                schema: new OA\Schema(
+                    type: 'array',
+                    items: new OA\Items(type: 'string')
+                )
+            ),
+            new OA\Parameter(
+                name: 'languages_ids[]',
+                description: 'Filter items by language (id). Accepts multiple languages.',
                 in: 'query',
                 required: false,
                 style: 'form',
@@ -71,6 +84,18 @@ class APIController extends Controller
             ),
             new OA\Parameter(
                 name: 'categories[]',
+                description: 'Filter items by category (identified with slug). Accepts multiple categories.',
+                in: 'query',
+                required: false,
+                style: 'form',
+                explode: true,
+                schema: new OA\Schema(
+                    type: 'array',
+                    items: new OA\Items(type: 'string')
+                )
+            ),
+            new OA\Parameter(
+                name: 'category_ids[]',
                 description: 'Filter items by category (identified with id). Accepts multiple categories.',
                 in: 'query',
                 required: false,
@@ -109,9 +134,10 @@ class APIController extends Controller
     }
 
     // 3. SPECIFIC ITEM
+    // 3a. BY ID
     #[OA\Get(
-        path: '/api/items/{item_id}',
-        summary: 'Fetch sepcific item, based on its internal id',
+        path: '/api/items/id/{item_id}',
+        summary: 'Fetch specific item, based on its internal id',
         tags: ['Items'],
         parameters: [
             new OA\Parameter(
@@ -127,13 +153,55 @@ class APIController extends Controller
                 response: 200,
                 description: 'Succes',
                 content: new OA\JsonContent(ref: '#/components/schemas/Item')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Item not found',
             )
         ]
     )]
-    public function getItem($id)
+    public function getItemById($id)
     {
-        $item = ItemGate::get($id);
-        return response()->json(ItemGate::get($id));
+        try {
+            return response()->json(ItemGate::get(intval($id)));
+        } catch (Exception $e) {
+            return response(null, 404);
+        }
+    }
+
+    // 3b. BY SLUG
+    #[OA\Get(
+        path: '/api/items/slug/{item_slug}',
+        summary: 'Fetch specific item, based on its slug (unique)',
+        tags: ['Items'],
+        parameters: [
+            new OA\Parameter(
+                name: 'item_slug',
+                description: 'Slug of the item',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', example: 'het-vleeskanon-van-clementijn')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Succes',
+                content: new OA\JsonContent(ref: '#/components/schemas/Item')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Item not found',
+            )
+        ]
+    )]
+    public function getItemBySlug($slug)
+    {
+        try {
+            return response()->json(ItemGate::get($slug));
+        } catch (Exception $e) {
+            return response(null, 404);
+        }
     }
 
     // CATEGORIES
@@ -179,9 +247,10 @@ class APIController extends Controller
         return response()->json(CategoryGate::all());
     }
 
-    //3. SPECIFIC CATEGORY
+    // 3. SPECIFIC CATEGORY
+    // 3a. BY ID
     #[OA\Get(
-        path: '/api/categories/{category_id}',
+        path: '/api/categories/id/{category_id}',
         summary: 'Fetch a specific category with its id, including full tree of all related items',
         tags: ['Categories'],
         parameters: [
@@ -198,12 +267,55 @@ class APIController extends Controller
                 response: 200,
                 description: 'List of category references',
                 content: new OA\JsonContent(ref: '#/components/schemas/Category')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Category not found',
             )
         ]
     )]
-    public function getCategory($id)
+    public function getCategoryById($id)
     {
-        return response()->json(CategoryGate::get($id));
+        try {
+            return response()->json(CategoryGate::get(intval($id)));
+        } catch (Exception $e) {
+            return response(null, 404);
+        }
+    }
+
+    // 3a. BY ID
+    #[OA\Get(
+        path: '/api/categories/slug/{category_slug}',
+        summary: 'Fetch a specific category with its slug, including full tree of all related items',
+        tags: ['Categories'],
+        parameters: [
+            new OA\Parameter(
+                name: 'category_slug',
+                description: 'Unique slug of the category',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', example: 'het-vleeskanon')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of category references',
+                content: new OA\JsonContent(ref: '#/components/schemas/Category')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Category not found',
+            )
+        ]
+    )]
+    public function getCategoryBySlug($slug)
+    {
+        try {
+            return response()->json(CategoryGate::get($slug));
+        } catch (Exception $e) {
+            return response(null, 404);
+        }
     }
 
 

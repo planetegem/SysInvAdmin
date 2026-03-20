@@ -51,7 +51,21 @@
                     {
                         "name": "languages[]",
                         "in": "query",
-                        "description": "Filter items by language (identified with id). Accepts multiple languages.",
+                        "description": "Filter items by language (short name). Accepts multiple languages.",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "languages_ids[]",
+                        "in": "query",
+                        "description": "Filter items by language (id). Accepts multiple languages.",
                         "required": false,
                         "style": "form",
                         "explode": true,
@@ -64,6 +78,20 @@
                     },
                     {
                         "name": "categories[]",
+                        "in": "query",
+                        "description": "Filter items by category (identified with slug). Accepts multiple categories.",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "category_ids[]",
                         "in": "query",
                         "description": "Filter items by category (identified with id). Accepts multiple categories.",
                         "required": false,
@@ -113,13 +141,13 @@
                 }
             }
         },
-        "/api/items/{item_id}": {
+        "/api/items/id/{item_id}": {
             "get": {
                 "tags": [
                     "Items"
                 ],
-                "summary": "Fetch sepcific item, based on its internal id",
-                "operationId": "ba313462d35b67c915f57c5d3ea67688",
+                "summary": "Fetch specific item, based on its internal id",
+                "operationId": "7ebc313b20c84022a2dbc9a392ae84db",
                 "parameters": [
                     {
                         "name": "item_id",
@@ -142,6 +170,45 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Item not found"
+                    }
+                }
+            }
+        },
+        "/api/items/slug/{item_slug}": {
+            "get": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "Fetch specific item, based on its slug (unique)",
+                "operationId": "448061940252a8b076dfaa15be4dacd6",
+                "parameters": [
+                    {
+                        "name": "item_slug",
+                        "in": "path",
+                        "description": "Slug of the item",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "het-vleeskanon-van-clementijn"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Succes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Item"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Item not found"
                     }
                 }
             }
@@ -194,13 +261,13 @@
                 }
             }
         },
-        "/api/categories/{category_id}": {
+        "/api/categories/id/{category_id}": {
             "get": {
                 "tags": [
                     "Categories"
                 ],
                 "summary": "Fetch a specific category with its id, including full tree of all related items",
-                "operationId": "4ff0311372c9a6ea8f9f2a297e33d1eb",
+                "operationId": "5e274f224dd0d5ae12cd7fad65b5a31e",
                 "parameters": [
                     {
                         "name": "category_id",
@@ -223,6 +290,45 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Category not found"
+                    }
+                }
+            }
+        },
+        "/api/categories/slug/{category_slug}": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Fetch a specific category with its slug, including full tree of all related items",
+                "operationId": "b6aaa3d884349718a76cbdf5e963b523",
+                "parameters": [
+                    {
+                        "name": "category_slug",
+                        "in": "path",
+                        "description": "Unique slug of the category",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "het-vleeskanon"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of category references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Category not found"
                     }
                 }
             }

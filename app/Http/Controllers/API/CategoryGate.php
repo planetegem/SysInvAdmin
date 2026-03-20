@@ -30,7 +30,6 @@ class CategoryGate extends Controller
         ]
     )]
 
-
     // QUERIES
     // 1. Index (only the bare minimum for everything, useful to generate url's in the frontend)
     public static function index()
@@ -69,11 +68,18 @@ class CategoryGate extends Controller
     }
 
     // 3. Get single category with all dependant items
-    public static function get($id)
+    public static function get($param)
     {
-        $category = Category::where('id', $id)->with([
-            'items:id',
-        ])->first();
+        if (is_int($param))
+            $category = Category::where('id', $param)->with([
+                'items:id',
+            ])->first();
+
+        if (is_string($param))
+            $category = Category::where('slug', $param)->with([
+                'items:id',
+            ])->first();
+
         $itemIds = $category->items->map(function (Item $item) {
             return $item->id;
         });

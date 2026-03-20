@@ -10,11 +10,15 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/items/index', [APIController::class, 'indexItems']);
 Route::get('/items/all', [APIController::class, 'allItems']);
-Route::get('/items/{id}', [APIController::class, 'getItem']);
+Route::get('/items/id/{id}', [APIController::class, 'getItemById']);
+Route::get('/items/slug/{slug}', [APIController::class, 'getItemBySlug']);
+
 
 Route::get('/categories/index', [APIController::class, 'indexCategories']);
 Route::get('/categories/all', [APIController::class, 'allCategories']);
-Route::get('/categories/{id}', [APIController::class, 'getCategory']);
+Route::get('/categories/id/{id}', [APIController::class, 'getCategoryById']);
+Route::get('/categories/slug/{id}', [APIController::class, 'getCategoryBySlug']);
+
 
 Route::get('/languages', [APIController::class, 'getLanguages']);
 Route::get('/languages/{id}', [APIController::class, 'getLanguage']);

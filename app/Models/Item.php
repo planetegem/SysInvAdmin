@@ -183,8 +183,18 @@ class Item extends Model
     protected static function boot()
     {
         parent::boot();
-        static::saving(function ($model) {
-            $model->slug = Str::slug($model->title);
+
+        static::saving(function($model){
+            $slug = Str::slug($model->title);
+            $originalSlug = $slug;
+            $count = 1;
+
+            while(static::where('slug', $slug)->exists()){
+                $slug = "{$originalSlug}-{$count}";
+                $count++;
+            }
+
+            $model->slug =$slug;
         });
     }
 

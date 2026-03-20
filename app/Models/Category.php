@@ -39,8 +39,18 @@ class Category extends Model
 
     protected static function boot(){
         parent::boot();
+
         static::saving(function($model){
-            $model->slug = Str::slug($model->name);
+            $slug = Str::slug($model->name);
+            $originalSlug = $slug;
+            $count = 1;
+
+            while(static::where('slug', $slug)->exists()){
+                $slug = "{$originalSlug}-{$count}";
+                $count++;
+            }
+
+            $model->slug =$slug;
         });
     }
 
