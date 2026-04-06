@@ -80,11 +80,23 @@ class CategoryGate extends Controller
                 'items:id',
             ])->first();
 
+
         $itemIds = $category->items->map(function (Item $item) {
             return $item->id;
         });
-        $items = Item::whereIn('id', $itemIds)->with(ItemGate::getItemCompanions())->get();
+        $item_request = Item::whereIn('id', $itemIds)->with(ItemGate::getItemCompanions());
 
+        // Determine order (descending or ascending)
+        switch (request()->query('order')) {
+            case 'creation-ascending':
+                $items = $item_request->orderBy('created_at', 'asc')->get();
+                break;
+            case 'creation-descending':
+            default:
+                $items = $item_request->orderBy('created_at', 'desc')->get();
+                break;
+        }
+        
         return $data = [
             'id' => $category->id,
             'name' => $category->name,

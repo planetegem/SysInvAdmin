@@ -11,8 +11,6 @@ use OpenApi\Attributes as OA;
 
 class ItemGate extends Controller
 {
-
-
     // QUERY HELPERS
     // 1. Return companions (for eager loading)
     public static function getItemCompanions($included = ['categories', 'links', 'media', 'languages'])
@@ -43,18 +41,6 @@ class ItemGate extends Controller
         properties: [
             new OA\Property(property: 'id', type: 'int', example: 15),
             new OA\Property(property: 'slug', type: 'string', example: 'example-of-index-item')
-        ]
-    )]
-    #[OA\Schema(
-        schema: "Language",
-        title: "Language",
-        description: "A Language that an item might be expressed in",
-        type: "object",
-        properties: [
-            new OA\Property(property: 'id', type: 'int', example: 1),
-            new OA\Property(property: 'name', type: 'string', example: 'French'),
-            new OA\Property(property: 'short_name', type: 'string', example: 'fr'),
-            new OA\Property(property: 'native_name', type: 'string', example: 'français')
         ]
     )]
     #[OA\Schema(
@@ -166,10 +152,10 @@ class ItemGate extends Controller
 
         if (in_array('relationships', $include)) {
             $object['relationships'] = array_map(function ($relationship) {
-                $relatedItem = Item::where('id', $relationship['item'])->with(ItemGate::getItemCompanions(['media', 'languages', 'links']))->first();
+                $relatedItem = Item::where('id', $relationship['item'])->with(ItemGate::getItemCompanions(['media', 'languages', 'links', 'categories']))->first();
                 return [
                     'relationship' => $relationship['relationship'],
-                    'item' => ItemGate::stitchItem($relatedItem, ['media', 'links'])
+                    'item' => ItemGate::stitchItem($relatedItem, ['media', 'links', 'categories'])
                 ];
             }, $item->relationships());
         }

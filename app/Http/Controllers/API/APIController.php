@@ -27,6 +27,10 @@ use OpenApi\Attributes as OA;
     name: 'Categories',
     description: 'Manage inventory categories (used to label items)'
 )]
+#[OA\Tag(
+    name: 'Languages',
+    description: 'Manage inventory items, based filtered by language'
+)]
 
 class APIController extends Controller
 {
@@ -260,6 +264,13 @@ class APIController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(type: 'integer', example: 101)
+            ),
+            new OA\Parameter(
+                name: 'order',
+                description: 'Define order in which to return items related to the category. Possible orders: creation-ascending, creation-descending.',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'string', default: 'creation-descending')
             )
         ],
         responses: [
@@ -283,7 +294,7 @@ class APIController extends Controller
         }
     }
 
-    // 3a. BY ID
+    // 3b. BY SLUG
     #[OA\Get(
         path: '/api/categories/slug/{category_slug}',
         summary: 'Fetch a specific category with its slug, including full tree of all related items',
@@ -295,6 +306,13 @@ class APIController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(type: 'string', example: 'het-vleeskanon')
+            ),
+            new OA\Parameter(
+                name: 'order',
+                description: 'Define order in which to return items related to the category. Possible orders: creation-ascending, creation-descending.',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'string', default: 'creation-descending')
             )
         ],
         responses: [
@@ -318,15 +336,112 @@ class APIController extends Controller
         }
     }
 
-
-    public function getLanguages()
+    // LANGUAGES
+    // 1. ALL LANGUAGES
+    #[OA\Get(
+        path: '/api/languages/all',
+        summary: 'Fetch all languages, including id\'s of related items',
+        tags: ['Languages'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of language references',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/Language')
+                )
+            )
+        ]
+    )]
+    public function allLanguages()
     {
         return response()->json(LanguageGate::all());
     }
-    public function getLanguage($id)
+
+    // 2. SPECIFIC LANGUAGE
+    // 2a. BY ID
+    #[OA\Get(
+        path: '/api/languages/id/{language_id}',
+        summary: 'Fetch a specific language with its id, including full tree of all related items',
+        tags: ['Languages'],
+        parameters: [
+            new OA\Parameter(
+                name: 'language_id',
+                description: 'Unique ID of the language',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer', example: 1)
+            ),
+            new OA\Parameter(
+                name: 'order',
+                description: 'Define order in which to return items related to the language. Possible orders: creation-ascending, creation-descending.',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'string', default: 'creation-descending')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of language references',
+                content: new OA\JsonContent(ref: '#/components/schemas/Language')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Language not found',
+            )
+        ]
+    )]
+
+    public function getLanguageById($id)
     {
-        return response()->json(LanguageGate::get($id));
+        try {
+            return response()->json(LanguageGate::get(intval($id)));
+        } catch (Exception $e) {
+            return response(null, 404);
+        }
     }
 
+    // 3b. BY SHORT NAME
+    #[OA\Get(
+        path: '/api/languages/name/{language_short_name}',
+        summary: 'Fetch a specific language with its unique short name, including full tree of all related items',
+        tags: ['Languages'],
+        parameters: [
+            new OA\Parameter(
+                name: 'language_short_name',
+                description: 'Unique short name of the language',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string', example: 'en')
+            ),
+            new OA\Parameter(
+                name: 'order',
+                description: 'Define order in which to return items related to the language. Possible orders: creation-ascending, creation-descending.',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(type: 'string', default: 'creation-descending')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of language references',
+                content: new OA\JsonContent(ref: '#/components/schemas/Language')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Language not found',
+            )
+        ]
+    )]
+    public function getLanguageByShortName($short)
+    {
+        try {
+            return response()->json(LanguageGate::get($short));
+        } catch (Exception $e) {
+            return response(null, 404);
+        }
+    }
 
 }

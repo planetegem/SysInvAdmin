@@ -332,6 +332,102 @@
                     }
                 }
             }
+        },
+        "/api/languages/all": {
+            "get": {
+                "tags": [
+                    "Languages"
+                ],
+                "summary": "Fetch all languages, including id's of related items",
+                "operationId": "833b0323f5c034d759814d1cd889c758",
+                "responses": {
+                    "200": {
+                        "description": "List of language references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Language"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/languages/id/{language_id}": {
+            "get": {
+                "tags": [
+                    "Languages"
+                ],
+                "summary": "Fetch a specific language with its id, including full tree of all related items",
+                "operationId": "00583aa8233fb2c25208d02c1b40d153",
+                "parameters": [
+                    {
+                        "name": "language_id",
+                        "in": "path",
+                        "description": "Unique ID of the language",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of language references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Language"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Language not found"
+                    }
+                }
+            }
+        },
+        "/api/languages/name/{language_short_name}": {
+            "get": {
+                "tags": [
+                    "Languages"
+                ],
+                "summary": "Fetch a specific language with its unique short name, including full tree of all related items",
+                "operationId": "d39173d792a224540340d58eb778916c",
+                "parameters": [
+                    {
+                        "name": "language_short_name",
+                        "in": "path",
+                        "description": "Unique short name of the language",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "en"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of language references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Language"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Language not found"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -392,29 +488,6 @@
                     "slug": {
                         "type": "string",
                         "example": "example-of-index-item"
-                    }
-                },
-                "type": "object"
-            },
-            "Language": {
-                "title": "Language",
-                "description": "A Language that an item might be expressed in",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "French"
-                    },
-                    "short_name": {
-                        "type": "string",
-                        "example": "fr"
-                    },
-                    "native_name": {
-                        "type": "string",
-                        "example": "français"
                     }
                 },
                 "type": "object"
@@ -527,6 +600,35 @@
                     }
                 },
                 "type": "object"
+            },
+            "Language": {
+                "title": "Language",
+                "description": "A Language that an item might be expressed in",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "French"
+                    },
+                    "short_name": {
+                        "type": "string",
+                        "example": "fr"
+                    },
+                    "native_name": {
+                        "type": "string",
+                        "example": "français"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Item"
+                        }
+                    }
+                },
+                "type": "object"
             }
         }
     },
@@ -538,6 +640,10 @@
         {
             "name": "Categories",
             "description": "Manage inventory categories (used to label items)"
+        },
+        {
+            "name": "Languages",
+            "description": "Manage inventory items, based filtered by language"
         }
     ]
 }

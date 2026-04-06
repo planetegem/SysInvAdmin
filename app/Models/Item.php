@@ -73,7 +73,7 @@ class Item extends Model
     // 2. Children retrieves all relationships where item is the object
     public function children()
     {
-        return $this->belongsToMany(Item::class, 'item_relationships', 'direct_object_item_id', 'subject_item_id')->withPivot('relationship');
+        return $this->belongsToMany(Item::class, 'item_relationships', 'direct_object_item_id', 'subject_item_id')->withPivot('relationship')->orderBy('created_at', 'desc');
     }
     public function hasChildren()
     {

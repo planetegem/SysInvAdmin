@@ -19,9 +19,9 @@ Route::get('/categories/all', [APIController::class, 'allCategories']);
 Route::get('/categories/id/{id}', [APIController::class, 'getCategoryById']);
 Route::get('/categories/slug/{id}', [APIController::class, 'getCategoryBySlug']);
 
-
-Route::get('/languages', [APIController::class, 'getLanguages']);
-Route::get('/languages/{id}', [APIController::class, 'getLanguage']);
+Route::get('/languages/all', [APIController::class, 'allLanguages']);
+Route::get('/languages/id/{id}', [APIController::class, 'getLanguageById']);
+Route::get('/languages/name/{short}', [APIController::class, 'getLanguageByShortName']);
 
 
 
