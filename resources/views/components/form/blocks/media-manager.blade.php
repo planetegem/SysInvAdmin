@@ -2,11 +2,11 @@
 <main class="media-manager">
     <div class="media-selector">
         <x-form.input.dropdown id="file_type_dropdown" label="File type" tooltip>
-            <option value="image" @if($item->file_type == "image" || $item->file_type == null) selected @endif >
-                <span>Image</span>
+            <option value="none" @if($item->file_type == null || $item->file_type == 'none') selected @endif >
+                <span>None</span>
             </option>
-            <option value="thumbnail" @if($item->file_type == "thumbnail") selected @endif >
-                <span>Thumbnail</span>
+            <option value="image" @if($item->file_type == "image") selected @endif >
+                <span>Image</span>
             </option>
             <option value="gallery" @if($item->file_type == "gallery") selected @endif >
                 <span>Gallery</span>
@@ -15,7 +15,7 @@
                 <span>Video</span>
             </option>
         </x-form.input.dropdown>
-        <input type="file" name="media_file" id="media-file-input" />
+        <input type="file" name="media_file" id="media-file-input" @if($item->file_type == null || $item->file_type == 'none') disabled @endif/>
         <label for="media-file-input" class="action-button passive">Select&nbsp;file</label>
     </div>
 
@@ -32,7 +32,7 @@
                     @break
             @endswitch
         </figure>
-        @if($item->file_type && $item->media->first()->file_name)
+        @if($item->file_type && $item->file_type != 'none' && $item->media->first()->file_name)
             <span id="file-selected-label" class="something-selected">Previewing {{ $item->media->first()->file_name ?? '' }}</span>
         @else
             <span id="file-selected-label" class="nothing-selected">File preview:<br>no file selected</span>

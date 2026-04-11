@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Item;
 use App\Models\Language;
 
+use App\Traits\SavesMedia;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ItemController extends Controller
 {
+    use SavesMedia;
 
     /**
      * Fetch order list: used in all views
@@ -101,26 +103,10 @@ class ItemController extends Controller
                 ->withInput();
         }
 
-        // 2. Try to save file
-        switch ($request->file_type_dropdown) {
-            case "image":
-                if ($request->hasFile('media_file')) {
-                    $file = $request->file('media_file');
-
-                    if ($request->convert_to_webp) {
-                        try {
-                            $path = convert_to_webp($file, 'images', 'uploads');
-                        } catch (Exception $e) {
-                            return Redirect::back()->withErrors(['convert_to_webp' => "Conversion to webp failed: {$e->getMessage()}."]);
-                        }
-                    } else {
-                        $path = $file->store('images', ['disk' => 'uploads']);
-                    }
-                }
-                break;
-            default:
-                return Redirect::back()->withErrors(['file_type_dropdown' => "File type not supported yet."]);
-        }
+        // 2. Validate media
+        $image_validator = $this->validateMedia($request);
+        if ($image_validator['head'] == 'error') 
+            return Redirect::back()->withErrors($image_validator['body']);
 
         // DB UPDATES
         // 1. Basic props: title and description
@@ -134,18 +120,8 @@ class ItemController extends Controller
         // 2. Dependencies
         $this->storeAndUpdate($request, $item);
 
-
         // 3. Add file to media table (if updating, first delete files)
-        if (isset($path)) {
-            $name = $file->getClientOriginalName();
-            $item->media()->create([
-                'file_type' => $request->file_type_dropdown,
-                'file_path' => $path,
-                'file_name' => $name,
-                'alt' => $request->image_alt
-            ]);
-            $item->update(['file_type' => $request->file_type_dropdown]);
-        }
+        $this->saveMedia($image_validator, $item);
 
         // ALL DONE
         $message = "Item #{$item->id} ({$item->title}) has been succesfully created.";
@@ -201,27 +177,11 @@ class ItemController extends Controller
         if (isset($request->relationship['type']) && $request->relationship['type'] != 'nothing' && $item->hasChildren()){
             return Redirect::back()->withErrors(['relationship[type]' => "Cannot become a depency while already having dependencies."]);
         }
-
-        // 2. Try to save file
-        switch ($request->file_type_dropdown) {
-            case "image":
-                if ($request->hasFile('media_file')) {
-                    $file = $request->file('media_file');
-
-                    if ($request->convert_to_webp) {
-                        try {
-                            $path = convert_to_webp($file, 'images', 'uploads');
-                        } catch (Exception $e) {
-                            return Redirect::back()->withErrors(['convert_to_webp' => "Conversion to webp failed: {$e->getMessage()}."]);
-                        }
-                    } else {
-                        $path = $file->store('images', ['disk' => 'uploads']);
-                    }
-                }
-                break;
-            default:
-                return Redirect::back()->withErrors(['file_type_dropdown' => "File type not supported yet."]);
-        }
+        
+        // 2. Validate media
+        $image_validator = $this->validateMedia($request, $item);
+        if ($image_validator['head'] == 'error') 
+            return Redirect::back()->withErrors($image_validator['body']);
 
         // DB UPDATES
         // 1. Basic props: title and description
@@ -237,21 +197,7 @@ class ItemController extends Controller
         $this->storeAndUpdate($request, $item);
 
         // 3. Add file to media table (if updating, first delete files)
-        if (isset($path)) {
-            // Firt try to delete previous file
-            if ($item->media->first())
-                File::delete(public_path("storage/{$item->media->first()->file_path}"));
-            $item->media()->delete();
-
-            $name = $file->getClientOriginalName();
-            $item->media()->create([
-                'file_type' => $request->file_type_dropdown,
-                'file_path' => $path,
-                'file_name' => $name,
-                'alt' => $request->image_alt
-            ]);
-            $item->update(['file_type' => $request->file_type_dropdown]);
-        }
+        $this->saveMedia($image_validator, $item);
 
         // ALL DONE
         $message = "Item #{$item->id} ({$item->title}) has been succesfully updated.";

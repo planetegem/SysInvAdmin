@@ -15,11 +15,18 @@ if (fileInput) fileInput.addEventListener("change", (e) => {
 if (fileTypeSelector) fileTypeSelector.addEventListener("change", (e) => {
     clearFileInput();
     switch (fileTypeSelector.value) {
+        case "none":
+            fileInput.disabled = true;
+            break;
+
         case "image":
+            fileInput.disabled = false;
             fileInput.accept = "image/png, image/jpeg";
             fileInput.multiple = false;
             break;
+            
         case "video":
+            fileInput.disabled = false;
             fileInput.accept = "video/*";
             fileInput.multiple = false;
             break;

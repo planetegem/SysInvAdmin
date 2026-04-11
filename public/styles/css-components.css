@@ -52,6 +52,8 @@ a.action-button.delete {
     filter: grayscale(50);
 }
 
+
+
 label.action-button.passive:hover {
     filter: grayscale(0);
 }
