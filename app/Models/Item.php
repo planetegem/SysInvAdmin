@@ -7,9 +7,10 @@ use Illuminate\Support\Str;
 
 class Item extends Model
 {
+    // BASE PROPS & METHODS   
+    // Fillable properties (update allowed after creation)
     protected $fillable = [
         'title',
-        'description',
         'language',
         'type',
         'language_id',
@@ -17,14 +18,39 @@ class Item extends Model
         'file_type'
     ];
 
+    // Boot method includes logic to fill the slug field
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $slug = Str::slug($model->title);
+            $originalSlug = $slug;
+            $count = 1;
+
+            while (static::where('slug', $slug)->exists()) {
+                $slug = "{$originalSlug}-{$count}";
+                $count++;
+            }
+            $model->slug = $slug;
+        });
+    }
+
+    // RELATIONSHIPS
+    // Categories: many (categories) to many (items)
     public function categories()
     {
         return $this->belongsToMany(Category::class);
     }
+
+    // Shorthand to fetch only visible categories
+    // Hidden categories can be used to make special collections on a site
     public function visibleCategories()
     {
         return $this->belongsToMany(Category::class)->where('hidden', '0');
     }
+
+    // Method to sync categories on item update
     public function syncCategories($categories)
     {
 
@@ -46,22 +72,39 @@ class Item extends Model
         $this->categories()->sync($category_ids);
     }
 
+    // Content Blocks = html enabled description of an item
+    // many (content blocks) to 1 (item)
+    public function contentBlocks()
+    {
+        return $this->morphMany(ContentBlock::class, 'contentable');
+    }
+    // Items will likely only have 1 content block, so include shorthand to fetch only the first block
+    public function firstContentBlock()
+    {
+        return $this->contentBlocks()->first();
+    }
 
+    // Language: 1 (language) to many (items)
     public function language()
     {
         return $this->belongsTo(Language::class);
     }
+
+    // Media: many (media) to 1 (item)
+    // Example of item with many media: gallery
     public function media()
     {
         return $this->hasMany(Medium::class);
     }
+
+    // Links: many (links) to 1 (item)
     public function links()
     {
         return $this->hasMany(Link::class);
     }
 
     // RELATIONSHIPS BETWEEN ITEMS
-    // 1. Parents retrieves all relationships where item is is the subject
+    // Parents retrieves all relationships where item is is the subject
     public function parents()
     {
         return $this->belongsToMany(Item::class, 'item_relationships', 'subject_item_id', 'direct_object_item_id')->withPivot('relationship');
@@ -70,7 +113,8 @@ class Item extends Model
     {
         return ($this->parents->count() > 0);
     }
-    // 2. Children retrieves all relationships where item is the object
+
+    // Children retrieves all relationships where item is the object
     public function children()
     {
         return $this->belongsToMany(Item::class, 'item_relationships', 'direct_object_item_id', 'subject_item_id')->withPivot('relationship')->orderBy('created_at', 'desc');
@@ -80,7 +124,7 @@ class Item extends Model
         return ($this->children->count() > 0);
     }
 
-    // 3. Combines parents and children into nautral relationships
+    // Combine parents and children into neutral relationships
     private function reverseRelationship($relationship)
     {
         switch ($relationship) {
@@ -89,11 +133,6 @@ class Item extends Model
             default:
                 return $relationship;
         }
-    }
-
-    public function hasRelationShips()
-    {
-        return ($this->hasParents() || $this->hasChildren());
     }
     public function relationships()
     {
@@ -113,7 +152,12 @@ class Item extends Model
         }
         return $relationships;
     }
-
+    public function hasRelationShips()
+    {
+        return ($this->hasParents() || $this->hasChildren());
+    }
+    
+    // Method to update relationships
     public function setRelationships($relationship)
     {
         if (!$relationship)
@@ -128,15 +172,14 @@ class Item extends Model
         }
     }
 
-
     // STRINGIFIERS
-    // 1. stringify timestamps
+    // Stringify timestamps
     private function formattedTimestamps()
     {
         return "Created on {$this->created_at->format('d/m/Y')} | Last updated on {$this->updated_at->format('d/m/Y')}";
     }
 
-    // 2. stringify children as list
+    // Stringify children as list
     private function stringChildren()
     {
         $children = array_map(function ($item) {
@@ -146,7 +189,7 @@ class Item extends Model
         return implode("", $children);
     }
 
-    // 3. List all relationships in HTML list
+    // List all relationships in HTML list
     public function listRelationships()
     {
         return $this->hasChildren() ?
@@ -156,7 +199,7 @@ class Item extends Model
             </div>" : "";
     }
 
-    // 4. Message when deleting deleting item
+    // Message when deleting deleting item
     public function confirmDelete()
     {
         $text = "<span>Are you sure you want to delete item #{$this->id} ({$this->title})?";
@@ -170,7 +213,7 @@ class Item extends Model
         return $text;
     }
 
-    // 5. Subheader on every item
+    // Subheader
     public function details()
     {
         return
@@ -180,22 +223,7 @@ class Item extends Model
     }
 
 
-    protected static function boot()
-    {
-        parent::boot();
 
-        static::saving(function($model){
-            $slug = Str::slug($model->title);
-            $originalSlug = $slug;
-            $count = 1;
 
-            while(static::where('slug', $slug)->exists()){
-                $slug = "{$originalSlug}-{$count}";
-                $count++;
-            }
-
-            $model->slug =$slug;
-        });
-    }
 
 }

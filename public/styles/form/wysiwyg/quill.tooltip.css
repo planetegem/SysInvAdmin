@@ -1,0 +1,88 @@
+/* Base tooltip */
+.ql-sysinvadmin .ql-tooltip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  background-color: white;
+
+  border: 1px solid var(--light60Grey);
+  box-shadow: 0 0 5px var(--light60Grey);
+  color: var(--mainGrey);
+
+  padding: 0.5em 1em;
+  white-space: nowrap;
+  position: absolute;
+  transform: translateY(0.8em);
+  border-radius: 0.3em;
+  z-index: 100;
+
+}
+
+/* The URL preview link */
+.ql-sysinvadmin .ql-tooltip a.ql-preview {
+  display: inline-block;
+  max-width: 200px;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  text-decoration: underline;
+  color: blue;
+  margin-left: 0.5em;
+  margin-right: 1.5em;
+}
+
+/* The text input (hidden in view mode, shown in edit mode) */
+.ql-sysinvadmin .ql-tooltip input[type=text] {
+  display: none;
+  border: 1px solid var(--light60Grey);
+  font-size: 1em;
+  height: 1.8em;
+  margin: 0;
+  padding: 0.5em;
+  width: 170px;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+
+/* Show input in edit mode */
+.ql-sysinvadmin .ql-tooltip.ql-editing input[type=text] {
+  display: inline-block;
+}
+
+/* Hide preview in edit mode */
+.ql-sysinvadmin .ql-tooltip.ql-editing a.ql-preview,
+.ql-sysinvadmin .ql-tooltip.ql-editing a.ql-remove {
+  display: none;
+}
+
+/* Action link — "Edit" in view mode, "Save" in edit mode */
+.ql-sysinvadmin .ql-tooltip a.ql-action::after {
+  content: 'Edit';
+  cursor: pointer;
+}
+.ql-sysinvadmin .ql-tooltip.ql-editing a.ql-action::after {
+  content: 'Save';
+}
+
+/* Remove link */
+.ql-sysinvadmin .ql-tooltip a.ql-remove::before {
+  content: 'Remove';
+  padding-left: 0.4em;
+  margin-left: 0.4em;
+  border-left: 1px solid var(--light60Grey);
+  cursor: pointer;
+}
+
+/* Arrow pointing up at the link */
+.ql-sysinvadmin .ql-tooltip::before {
+  content: "Visit URL:";
+  line-height: 1.75em;
+}
+.ql-sysinvadmin .ql-tooltip.ql-editing::before {
+  content: "Enter link:";
+}
+
+/* Hide when off-screen */
+.ql-sysinvadmin .ql-tooltip.ql-hidden {
+  visibility: hidden;
+}

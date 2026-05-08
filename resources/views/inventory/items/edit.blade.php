@@ -18,7 +18,7 @@
                 @endforeach
             </x-form.input.dropdown>
         </div>
-        <x-form.input.textarea name="item_description" value="{{ $item->description }}" />
+        <x-form.blocks.quill-editor name="item_description" id="item-description" :content="$item->firstContentBlock()" />
 
         <!-- MEDIA -->
         <x-form.foldable-divider title="Item media" open>

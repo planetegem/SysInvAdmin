@@ -13,9 +13,12 @@ class ItemGate extends Controller
 {
     // QUERY HELPERS
     // 1. Return companions (for eager loading)
-    public static function getItemCompanions($included = ['categories', 'links', 'media', 'languages'])
+    public static function getItemCompanions($included = ['description', 'categories', 'links', 'media', 'languages'])
     {
         $companions = [];
+        if (in_array('description', $included))
+            $companions[] = 'contentBlocks:id,content';
+
         if (in_array('categories', $included))
             $companions[] = 'categories:id,name,slug,hidden';
 
@@ -116,7 +119,7 @@ class ItemGate extends Controller
     }
 
     // 2b. Create item object (with include array to specify which blocks to add - default = all blocks)
-    public static function stitchItem($item, $include = ['media', 'categories', 'links', 'relationships'])
+    public static function stitchItem($item, $include = ['description', 'media', 'categories', 'links', 'relationships'])
     {
         $object = [
             'id' => $item->id,
@@ -124,10 +127,11 @@ class ItemGate extends Controller
             'updated_at' => $item->updated_at,
             'title' => $item->title,
             'slug' => $item->slug,
-            'description' => preg_replace('/\s+/', ' ', $item->description),
             'type' => $item->type,
             'language' => $item->language,
         ];
+        if(in_array('description', $include))
+            $object['description'] = $item->contentBlocks()->first()->content;
 
         if (in_array('media', $include) && $item->file_type)
             $object['media'] = ItemGate::stitchMedia($item);

@@ -52,6 +52,13 @@ class ItemController extends Controller
                 ]);
             }
         }
+
+        // 4. Item description
+        $item->contentBlocks()->delete();
+        $item->contentBlocks()->create([
+            'type' => $request->input('item_description.type'),
+            'content' => $request->input('item_description.content')
+        ]);
     }
 
     /**
@@ -79,23 +86,29 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-
         // VALIDATION PHASE
         // 1. Base validation
-        $validator = Validator::make($request->all(), [
-            'item_title' => [
-                'required',
-                'unique:items,title'
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'item_title' => [
+                    'required',
+                    'unique:items,title'
+                ],
+                'item_description.content' => ['required'],
+                'item_description.type' => ['required'],
+                'language_dropdown' => ['required'],
+                'file_type_dropdown' => ['required'],
+                'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
+                'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor'],
             ],
-            'item_description' => ['required'],
-            'language_dropdown' => ['required'],
-            'file_type_dropdown' => ['required'],
-            'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
-            'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor']
-        ], [
-            'item_links.*.anchor.required_with' => 'An anchor text is required when supplying a link URL.',
-            'item_links.*.url.required_with' => 'An URL is required when supplying a link anchor.',
-        ]);
+            [
+                'item_links.*.anchor.required_with' => 'An anchor text is required when supplying a link URL.',
+                'item_links.*.url.required_with' => 'An URL is required when supplying a link anchor.',
+                'item_description.content.required' => 'Please provide an item desciption',
+                'item_description.type.required' => 'Please provide an item desciption',
+            ]
+        );
 
         if ($validator->fails()) {
             return redirect('items/create')
@@ -105,7 +118,7 @@ class ItemController extends Controller
 
         // 2. Validate media
         $image_validator = $this->validateMedia($request);
-        if ($image_validator['head'] == 'error') 
+        if ($image_validator['head'] == 'error')
             return Redirect::back()->withErrors($image_validator['body']);
 
         // DB UPDATES
@@ -113,7 +126,6 @@ class ItemController extends Controller
         $language = Language::where('id', intval($request->language_dropdown))->first();
         $item = $language->items()->create([
             'title' => $request->item_title,
-            'description' => $request->item_description,
             'type' => 'master'
         ]);
 
@@ -152,20 +164,27 @@ class ItemController extends Controller
     {
         // VALIDATION PHASE
         // 1. Base validation
-        $validator = Validator::make($request->all(), [
-            'item_title' => [
-                'required',
-                'unique:items,title,' . $item->id,
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'item_title' => [
+                    'required',
+                    'unique:items,title,' . $item->id,
+                ],
+                'item_description.content' => ['required'],
+                'item_description.type' => ['required'],
+                'language_dropdown' => ['required'],
+                'file_type_dropdown' => ['required'],
+                'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
+                'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor']
             ],
-            'item_description' => ['required'],
-            'language_dropdown' => ['required'],
-            'file_type_dropdown' => ['required'],
-            'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
-            'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor']
-        ], [
-            'item_links.*.anchor.required_with' => 'An anchor text is required when supplying a link URL.',
-            'item_links.*.url.required_with' => 'An URL is required when supplying a link anchor.',
-        ]);
+            [
+                'item_links.*.anchor.required_with' => 'An anchor text is required when supplying a link URL.',
+                'item_links.*.url.required_with' => 'An URL is required when supplying a link anchor.',
+                'item_description.content.required' => 'Please provide an item desciption',
+                'item_description.type.required' => 'Please provide an item desciption',
+            ]
+        );
 
         if ($validator->fails()) {
             return redirect('items/create')
@@ -174,20 +193,19 @@ class ItemController extends Controller
         }
 
         // 1.1. Refuse to make update if already has updates itself
-        if (isset($request->relationship['type']) && $request->relationship['type'] != 'nothing' && $item->hasChildren()){
+        if (isset($request->relationship['type']) && $request->relationship['type'] != 'nothing' && $item->hasChildren()) {
             return Redirect::back()->withErrors(['relationship[type]' => "Cannot become a depency while already having dependencies."]);
         }
-        
+
         // 2. Validate media
         $image_validator = $this->validateMedia($request, $item);
-        if ($image_validator['head'] == 'error') 
+        if ($image_validator['head'] == 'error')
             return Redirect::back()->withErrors($image_validator['body']);
 
         // DB UPDATES
         // 1. Basic props: title and description
         $item->update([
             'title' => $request->item_title,
-            'description' => $request->item_description,
             'type' => 'master',
             'language_id' => intval($request->language_dropdown),
         ]);
@@ -211,8 +229,8 @@ class ItemController extends Controller
     {
         $message = "Item #{$item->id} ({$item->title}) has been succesfully deleted.";
 
-        if ($item->hasChildren()){
-            foreach($item->children as $child) {
+        if ($item->hasChildren()) {
+            foreach ($item->children as $child) {
                 $child->update(['type' => 'master']);
             }
         }

@@ -13,6 +13,9 @@
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/form/input.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/form/layout.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/form/blocks.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/form/wysiwyg/quill.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/form/wysiwyg/quill.tooltip.css') }}">
+
 
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/blade-components.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/css-components.css') }}">
@@ -23,6 +26,7 @@
     <script src="{{ URL::asset('js/category-manager.js') }}" defer></script>
     <script src="{{ URL::asset('js/media-manager.js') }}" defer></script>
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
 @yield('body')

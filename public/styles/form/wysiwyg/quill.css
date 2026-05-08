@@ -1,0 +1,161 @@
+/* QUILL EDITOR BLOCK */
+/* Pink border, title and tooltip are done here */
+section.quill-editor-block {
+    position: relative;
+    padding: 0.75em;
+    width: 100%;
+    outline: solid 1px var(--light80Grey);
+    border-radius: 0.5em;
+    display: grid;
+    box-sizing: border-box;
+    text-align: center;
+
+    & h5.label {
+        position: absolute;
+        display: inline-block;
+        color: var(--mainGrey);
+        top: -0.75em;
+        left: 0;
+        right: 0;
+        margin: auto;
+        background-color: white;
+        width: max-content;
+        padding: 0 0.35em;
+        user-select: none;
+        font-size: 0.9em;
+    }
+
+    & span.tooltip {
+        font-size: 1em;
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 1em;
+    }
+}
+
+section.quill-editor-block:hover {
+    outline: solid 2px var(--mainPink);
+    cursor: text;
+
+    & h5 {
+        color: black;
+    }
+}
+
+section.quill-editor-block:has(.ql-editor:focus) {
+    outline: solid 2px var(--mainPink);
+    cursor: text;
+
+    & h5 {
+        color: black;
+    }
+}
+
+/* TOOLBAR */
+.ql-toolbar.ql-sysinvadmin {
+    margin: 0.5em 1em;
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+
+    & button {
+        &>svg {
+            height: 1.3em;
+            width: 1.3em;
+            fill: var(--mainGrey);
+        }
+    }
+
+    & button:hover {
+        cursor: pointer;
+
+        &>svg {
+            fill: var(--mainPink);
+        }
+    }
+
+    & button.ql-active {
+        &>svg {
+            fill: var(--mainPink);
+        }
+    }
+
+    & button[disabled] {
+        opacity: 0.3;
+    }
+
+    & button[disabled]:hover {
+        cursor: default;
+
+        &>svg {
+            fill: var(--mainGrey);
+        }
+    }
+}
+
+/* EDITOR */
+.ql-container.ql-sysinvadmin,
+.ql-source-code-container.ql-sysinvadmin textarea {
+    font-size: 1em;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.ql-container.ql-sysinvadmin .ql-editor {
+    min-height: 5em;
+    padding: 0.75em;
+    line-height: 1.42;
+    width: 100%;
+    box-sizing: border-box;
+
+    & p {
+        font-size: 1em;
+        display: block;
+    }
+
+    & ol {
+        display: flex;
+        flex-direction: column;
+    }
+
+    & a {
+        text-decoration: underline;
+        color: blue;
+    }
+}
+
+/* switch to source code */
+.ql-sysinvadmin.disabled {
+    display: none;
+}
+
+.ql-source-code-container.ql-sysinvadmin textarea {
+    min-height: 5em;
+    padding: 0.75em;
+    line-height: 1.42;
+    width: 100%;
+    box-sizing: border-box;
+
+    resize: none;
+    outline: none;
+    border: none;
+    overflow: hidden;
+}
+
+/* placeholder */
+.ql-container.ql-sysinvadmin .ql-editor.ql-blank::before {
+    content: attr(data-placeholder);
+    color: var(--light60Grey);
+    font-style: italic;
+    font-size: 1em;
+    font-family: Arial, Helvetica, sans-serif;
+    pointer-events: none;
+    position: absolute;
+}
+
+.ql-source-code-container.ql-sysinvadmin textarea::placeholder {
+    color: var(--light60Grey);
+    font-style: italic;
+    font-size: 1em;
+    font-family: Arial, Helvetica, sans-serif;
+}
