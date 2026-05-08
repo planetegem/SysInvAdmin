@@ -1,14 +1,14 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
 
-## About SysInvAdmin
+# About SysInvAdmin
+SysInvAdmin (System Inventory Administrator) is a custom CMS that provides a headless backend for websites. It is specifically suited for sites that are structured as a sort of inventory. For example: a portfolio site might be considered an inventory of previous projects; a company site might be an inventory of products, a gaming site might be an inventory of different webgames or articles about games.
+
+The backend is built in Laravel, with a UI to access it made with blade components and custom css. Items are added and categorized in this backend. These items are then fetched by querying an API, which lists them in JSON-format. This API response is what you use as a basis for your website: it is the content onto which you build your own presentation layer (the website frontend).
+
+## Examples of sites using SysInvAdmin
+### Planetegem
+![screenshot](.github/images/planetegem_logo.webp)
+My own site, https://planetegem.be, runs on SysInvAdmin (in fact, this is why I started building it). The backend living at https://inventory.planetegem.be. 
 
 ## Setup
 ### Artisan Commands To Get You Started
@@ -16,3 +16,15 @@
 2) Run 'php artisan db:seed' to create some defaults. At the moment, these are just languages, which can't be created any other way.
 3) Run 'php artisan make:admin {mail} {password}' to create the first admin user, which you can use as login. Once inside, you can use the interface to invite additional users/admins.
 4) [TO DO: explain how invitations work]
+
+### Frontend starter kit
+
+## Working with the API
+
+## Features
+
+## Roadmap
+
+
+
+
