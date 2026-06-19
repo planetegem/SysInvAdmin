@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Item extends Model
 {
+    use HasMedia;
+
+
     // BASE PROPS & METHODS   
     // Fillable properties (update allowed after creation)
     protected $fillable = [
@@ -94,7 +98,7 @@ class Item extends Model
     // Example of item with many media: gallery
     public function media()
     {
-        return $this->hasMany(Medium::class);
+        return $this->morphMany(Medium::class, 'mediable');
     }
 
     // Links: many (links) to 1 (item)
@@ -156,7 +160,7 @@ class Item extends Model
     {
         return ($this->hasParents() || $this->hasChildren());
     }
-    
+
     // Method to update relationships
     public function setRelationships($relationship)
     {
@@ -173,57 +177,26 @@ class Item extends Model
     }
 
     // STRINGIFIERS
-    // Stringify timestamps
-    private function formattedTimestamps()
+    // Return an array of stringified versions of relations
+    public function getRelationsAsString()
     {
-        return "Created on {$this->created_at->format('d/m/Y')} | Last updated on {$this->updated_at->format('d/m/Y')}";
-    }
-
-    // Stringify children as list
-    private function stringChildren()
-    {
-        $children = array_map(function ($item) {
-            return "<li>{$item['title']} (item #{$item['id']} | applied as {$item['type']})";
+        return array_map(function ($item) {
+            return [
+                'text' => __('item.relationships.relationship_format', [
+                    'title' => $item['title'],
+                    'id' => $item['id'],
+                    'type' => $item['type']
+                ])
+            ];
         }, $this->children->toArray());
-
-        return implode("", $children);
     }
-
-    // List all relationships in HTML list
-    public function listRelationships()
+    // Helper method to quickly get timestamps
+    public function getTimestampsAsString()
     {
-        return $this->hasChildren() ?
-            "<div>
-                <p>The following items have a relationship with this item:</p>
-                <ul class='unordered-list'>{$this->stringChildren()}</ul>
-            </div>" : "";
+        return __(
+            'item.properties.timestamps',
+            ['created' => $this->created_at->format('d/m/Y'), 'updated' => $this->updated_at->format('d/m/Y'),]
+        );
     }
-
-    // Message when deleting deleting item
-    public function confirmDelete()
-    {
-        $text = "<span>Are you sure you want to delete item #{$this->id} ({$this->title})?";
-        if ($this->hasChildren()) {
-            $text .=
-                "<br>Doing so would remove the following relationships:</span>
-                <ul class='unordered-list'>{$this->stringChildren()}</ul>";
-        } else {
-            $text .= "</span>";
-        }
-        return $text;
-    }
-
-    // Subheader
-    public function details()
-    {
-        return
-            "Item #{$this->id} ({$this->title})            
-            <br>
-            Has {$this->children->count()} dependencies | {$this->formattedTimestamps()}";
-    }
-
-
-
-
 
 }

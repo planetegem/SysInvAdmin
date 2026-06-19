@@ -278,6 +278,16 @@
                             "type": "integer",
                             "example": 101
                         }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Define order in which to return items related to the category. Possible orders: creation-ascending, creation-descending.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "creation-descending"
+                        }
                     }
                 ],
                 "responses": {
@@ -313,6 +323,16 @@
                         "schema": {
                             "type": "string",
                             "example": "het-vleeskanon"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Define order in which to return items related to the category. Possible orders: creation-ascending, creation-descending.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "creation-descending"
                         }
                     }
                 ],
@@ -374,6 +394,16 @@
                             "type": "integer",
                             "example": 1
                         }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Define order in which to return items related to the language. Possible orders: creation-ascending, creation-descending.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "creation-descending"
+                        }
                     }
                 ],
                 "responses": {
@@ -409,6 +439,16 @@
                         "schema": {
                             "type": "string",
                             "example": "en"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Define order in which to return items related to the language. Possible orders: creation-ascending, creation-descending.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "creation-descending"
                         }
                     }
                 ],
@@ -507,9 +547,9 @@
                 },
                 "type": "object"
             },
-            "Medium": {
-                "title": "Medium",
-                "description": "A type of medium attached to an item, with links to corresponding files",
+            "Media": {
+                "title": "Media",
+                "description": "Media attached to other instances, with links to relevant files",
                 "properties": {
                     "type": {
                         "type": "string",
@@ -518,15 +558,22 @@
                     "files": {
                         "type": "array",
                         "items": {
-                            "type": "string"
-                        },
-                        "example": [
-                            "images/image.webp"
-                        ]
-                    },
-                    "alt": {
-                        "type": "string",
-                        "example": "An example image"
+                            "properties": {
+                                "path": {
+                                    "type": "string",
+                                    "example": "images/image.webp"
+                                },
+                                "alt": {
+                                    "type": "string",
+                                    "example": "An example image"
+                                },
+                                "original_name": {
+                                    "type": "string",
+                                    "example": "private_name.png"
+                                }
+                            },
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -569,7 +616,7 @@
                         "$ref": "#/components/schemas/Language"
                     },
                     "media": {
-                        "$ref": "#/components/schemas/Medium"
+                        "$ref": "#/components/schemas/Media"
                     },
                     "categories": {
                         "type": "array",

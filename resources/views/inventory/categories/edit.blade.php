@@ -2,21 +2,35 @@
 
 @section('db-form')
 
-    <x-form.templates.update-form controller="categories" :selected="$category">
+    <x-form.update-form :confirm-route="query_route('categories.update', $category)" name="category-update-form"
+        :cancel-route="query_route('categories.index')">
 
-        <x-form.input.text name="category_name" value="{{ $category->name }}" />
-        <x-form.input.checkbox name="hidden_category" checked="{{ $category->hidden }}" />
+        <x-slot:header>
+            {!! __('category.header.update') !!}
+        </x-slot:header>
+        <x-slot:subheader>
+            {!! __('category.properties.name', ['id' => $category->id, 'name' => $category->name]) !!}
+            <br>
+            {!! __('category.properties.item_count', ['count' => $category->items()->count()]) !!}
+            &nbsp;|&nbsp;
+            {!! $category->getTimestampsAsString() !!} </x-slot:subheader>
+        <x-slot:body>
+            <x-form.templates.category :category="$category" />
+        </x-slot:body>
 
-        <x-form.titled-divider>Page properties</x-form.titled-divider>
-        <x-form.input.text name="category_title" value="{{ $category->title }}" optional />
-        <x-form.input.textarea name="category_description" value="{{ $category->description }}" optional medium />
+    </x-form.update-form>
 
-        <x-form.titled-divider>SEO properties</x-form.titled-divider>
-        <x-form.input.text name="category_meta_title" value="{{ $category->meta_title }}" optional />
-        <x-form.input.textarea name="category_meta_description" value="{{ $category->meta_description }}" optional small />
+    <x-form.delete-form :confirm-route="query_route('categories.destroy', $category)">
 
-    </x-form.templates.update-form>
+        <x-slot:header>
+            {!! __('category.header.delete') !!}
+        </x-slot:header>
+        <x-slot:message>
+            {!! __('category.message.delete', ['id' => $category->id, 'name' => $category->name]) !!}
+            <br>
+            {!! __('category.message.warning_attached_items', ['count' => $category->items()->count()]) !!}
+        </x-slot:message>
 
-    <x-form.templates.delete-form controller="categories" :selected="$category" />
+    </x-form.delete-form>
 
 @endsection

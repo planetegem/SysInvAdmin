@@ -57,14 +57,24 @@ class ItemGate extends Controller
         ]
     )]
     #[OA\Schema(
-        schema: "Medium",
-        title: "Medium",
-        description: "A type of medium attached to an item, with links to corresponding files",
+        schema: "Media",
+        title: "Media",
+        description: "Media attached to other instances, with links to relevant files",
         type: "object",
         properties: [
             new OA\Property(property: 'type', type: 'string', example: 'thumbnail'),
-            new OA\Property(property: 'files', type: 'array', items: new OA\Items(type: "string"), example: ['images/image.webp']),
-            new OA\Property(property: 'alt', type: 'string', example: 'An example image'),
+            new OA\Property(
+                property: 'files',
+                type: 'array',
+                items: new OA\Items(
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: 'path', type: 'string', example: 'images/image.webp'),
+                        new OA\Property(property: 'alt', type: 'string', example: 'An example image'),
+                        new OA\Property(property: 'original_name', type: 'string', example: 'private_name.png')
+                    ]
+                )
+            )
         ]
     )]
     #[OA\Schema(
@@ -81,7 +91,7 @@ class ItemGate extends Controller
             new OA\Property(property: 'description', type: 'html', example: '<p>A short description</p>'),
             new OA\Property(property: 'type', type: 'string', example: 'update'),
             new OA\Property(property: 'language', ref: "#/components/schemas/Language"),
-            new OA\Property(property: 'media', ref: "#/components/schemas/Medium"),
+            new OA\Property(property: 'media', ref: "#/components/schemas/Media"),
             new OA\Property(property: 'categories', type: 'array', items: new OA\Items(ref: "#/components/schemas/Category")),
             new OA\Property(property: 'links', type: 'array', items: new OA\Items(ref: "#/components/schemas/Link")),
             new OA\Property(property: 'relationships', type: 'array', items: new OA\Items(
@@ -98,24 +108,7 @@ class ItemGate extends Controller
     // 2a. Helper function that creates the medium object
     public static function stitchMedia(Item $item)
     {
-        $media = [
-            'type' => $item->file_type,
-            'files' => [],
-        ];
-        switch ($item->file_type) {
-            case 'image':
-            case 'thumbnail':
-                foreach ($item->media as $medium) {
-                    $media['files'][] = [
-                        $medium->file_path,
-                    ];
-                    $media['alt'] = $medium->alt;
-                }
-                break;
-            default:
-                break;
-        }
-        return $media;
+        // OBSOLETE
     }
 
     // 2b. Create item object (with include array to specify which blocks to add - default = all blocks)
@@ -130,11 +123,11 @@ class ItemGate extends Controller
             'type' => $item->type,
             'language' => $item->language,
         ];
-        if(in_array('description', $include))
+        if (in_array('description', $include))
             $object['description'] = $item->contentBlocks()->first()->content;
 
         if (in_array('media', $include) && $item->file_type)
-            $object['media'] = ItemGate::stitchMedia($item);
+            $object['media'] = $item->returnMediaAsArray();
 
         if (in_array('categories', $include) && $item->categories->count() > 0)
             $object['categories'] = $item->categories->map(function (Category $category) {

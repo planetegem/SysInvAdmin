@@ -3,53 +3,43 @@
 @section('db-form')
 
 
-    <x-form.templates.update-form controller="items" :selected="$item">
+    <x-form.update-form :confirm-route="query_route('items.update', $item)" name="item-update-form"
+        :cancel-route="query_route('items.index')">
 
-        <!-- BASE -->
-        <div class="text-and-dropdown-input">
-            <x-form.input.text name="item_title" value="{{ $item->title }}" />
+        <x-slot:header>
+            {!! __('item.header.update') !!}
+        </x-slot:header>
+        <x-slot:subheader>
+            {!! __('item.properties.name', ['id' => $item->id, 'title' => $item->title]) !!}
+            <br>
+            {!! __('item.relationships.count', ['count' => $item->children->count()]) !!}
+            &nbsp;|&nbsp;
+            {!! $item->getTimestampsAsString() !!} 
 
-            <?php $languages = App\Models\Language::all(); ?>
-            <x-form.input.dropdown id="language_dropdown" label="Language">
-                @foreach ($languages as $language)
-                    <option value="{{ $language->id }}" @if($item->language_id == $language->id) selected @endif>
-                        {{ $language->name }}
-                    </option>
-                @endforeach
-            </x-form.input.dropdown>
-        </div>
-        <x-form.blocks.quill-editor name="item_description" id="item-description" :content="$item->firstContentBlock()" />
+        </x-slot:subheader>
+        <x-slot:body>
+            <x-form.templates.item :item="$item" />
+        </x-slot:body>
 
-        <!-- MEDIA -->
-        <x-form.foldable-divider title="Item media" open>
-            <x-form.blocks.media-manager :item="$item" />
-        </x-form.foldable-divider>
+    </x-form.update-form>
+    <x-form.delete-form :confirm-route="query_route('items.destroy', $item)">
+        <x-slot:header>
+            {!! __('item.header.delete') !!}
+        </x-slot:header>
+        <x-slot:message>
+            <span>{{ __('item.message.delete', ['id' => $item->id, 'title' => $item->title]) }}</span>
 
-        <!-- CATEGORIES -->
-        <?php 
-            $categories = $item->categories;
-            $selection = array_map(fn($i): string => $i['name'], $categories->toArray());
-        ?>
-        <x-form.foldable-divider title="Item categories" open>
-            <x-form.blocks.category-manager :selected="$selection" />
-        </x-form.foldable-divider>
-        <x-form.foldable-divider title="Hidden categories">
-            <x-form.blocks.category-manager :selected="$selection" type="hidden" />
-        </x-form.foldable-divider>
-
-        <!-- LINKS -->
-        <?php $links = $item->links; ?>
-        <x-form.foldable-divider title="Item links" open>
-            <x-form.blocks.link-manager :links="$links" />
-        </x-form.foldable-divider>
-
-        <!-- RELATIONSHIP/TYPE -->
-        <x-form.foldable-divider title="Item relationships">
-            <x-form.blocks.item-relationship-manager :item="$item" />
-        </x-form.foldable-divider>
-
-    </x-form.templates.update-form>
-    <x-form.templates.delete-form controller="items" :selected="$item" />
+            @if($item->hasChildren())
+                <br>
+                <span>{{ __('item.relationships.warning_relationships') }}</span>
+                <ul class="unordered-list">
+                    @foreach($item->getRelationsAsString() as $child)
+                        <li>{{ $child['text'] }}</li>
+                    @endforeach
+                </ul>
+            @endif
+        </x-slot:message>
+    </x-form.delete-form>
 
 
 @endsection

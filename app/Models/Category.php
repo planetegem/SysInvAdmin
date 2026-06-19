@@ -16,42 +16,40 @@ class Category extends Model
         'hidden'
     ];
 
-    public function formattedTimestamps(){
-        return "Created on {$this->created_at->format('d/m/Y')} | Last updated on {$this->updated_at->format('d/m/Y')}";
-    }
-    public function confirmDelete(){
-        return
-            "Are you sure you want to delete category #{$this->id} ({$this->name})?
-            <br>
-            This category is currently attached to {$this->items()->count()} items.";
-    }
 
-    public function details(){
-        return 
-            "Category #{$this->id} ({$this->name})
-            <br>
-            Attached to {$this->items()->count()} items | {$this->formattedTimestamps()}";
-    }
 
-    public function items(){
+    public function items()
+    {
         return $this->belongsToMany(Item::class);
     }
 
-    protected static function boot(){
+    protected static function boot()
+    {
         parent::boot();
 
-        static::saving(function($model){
+        static::saving(function ($model) {
             $slug = Str::slug($model->name);
             $originalSlug = $slug;
             $count = 1;
 
-            while(static::where('slug', $slug)->exists()){
+            while (static::where('slug', $slug)->exists()) {
                 $slug = "{$originalSlug}-{$count}";
                 $count++;
             }
 
-            $model->slug =$slug;
+            $model->slug = $slug;
         });
+    }
+
+    
+    // STRINGIFIERS
+    // Helper method to quickly get timestamps
+    public function getTimestampsAsString()
+    {
+        return __(
+            'category.properties.timestamps',
+            ['created' => $this->created_at->format('d/m/Y'), 'updated' => $this->updated_at->format('d/m/Y'),]
+        );
     }
 
 }

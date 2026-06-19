@@ -36,6 +36,9 @@ I'm working on including a simple starter kit to build a php frontend that easil
 ### Working with the API
 When SysInvAdmin is installed, it automatically comes with OpenAPI / Swagger documentation. For an example, take a look at https://inventory.planetegem.be/api/documentation.
 
+### Image conversion
+[TO DO]
+
 ## Features
 ### Current features
 - Login system, with support for a 'remember me' token.
@@ -70,4 +73,23 @@ When SysInvAdmin is installed, it automatically comes with OpenAPI / Swagger doc
 - (...)
 
 
+## Change log
 
+### 0.3: Localisation files & component refactoring
+Started using Laravel localisation files for labels and tooltips: as I go through all components and views, I'll move everything over.
+Also refactored some components:
+- Now have an Input component as common ancestor for the various inputs (checkbox, textbox, etc)
+- Now have a FormTemplate component as common ancestor for the various form types (wrapper)
+- Reworked Category & Item form templates to have less repeating code
+
+### 0.2: Media manager update
+Updated the media-manager block to:
+- work as js module that's imported on the spot. Can now have multiple media managers without issue.
+- added support for multiple media files on one item (image list or carousel)
+- reworked validation logic, save logic, and api response logic as a trait that can be used on any model
+- turned media table polymorphic so categories can also get media items in the futures (for SEO or category landing pages)
+- webp conversion reworked: now tries imagick driver, then gd driver, then returns error. To efficiently convert gifs, your server needs imagick.
+
+### 0.1: The beginning
+Basic version running planetegem.be. 
+Has items with wysiwyg editor for description, image uploader, categories and API with documentation.

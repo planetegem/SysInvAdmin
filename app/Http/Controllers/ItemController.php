@@ -2,22 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use App\Models\Item;
 use App\Models\Language;
 
-use App\Traits\SavesMedia;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
 
 class ItemController extends Controller
 {
-    use SavesMedia;
-
     /**
      * Fetch order list: used in all views
      */
@@ -98,7 +92,7 @@ class ItemController extends Controller
                 'item_description.content' => ['required'],
                 'item_description.type' => ['required'],
                 'language_dropdown' => ['required'],
-                'file_type_dropdown' => ['required'],
+                'item_media.type' => ['required'],
                 'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
                 'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor'],
             ],
@@ -117,9 +111,9 @@ class ItemController extends Controller
         }
 
         // 2. Validate media
-        $image_validator = $this->validateMedia($request);
-        if ($image_validator['head'] == 'error')
-            return Redirect::back()->withErrors($image_validator['body']);
+        $image_validator = Item::validateMedia($request->item_media);
+        if ($image_validator['type'] == 'error')
+            return Redirect::back()->withErrors($image_validator['message']);
 
         // DB UPDATES
         // 1. Basic props: title and description
@@ -133,7 +127,7 @@ class ItemController extends Controller
         $this->storeAndUpdate($request, $item);
 
         // 3. Add file to media table (if updating, first delete files)
-        $this->saveMedia($image_validator, $item);
+        $item->saveMedia($image_validator);
 
         // ALL DONE
         $message = "Item #{$item->id} ({$item->title}) has been succesfully created.";
@@ -174,7 +168,7 @@ class ItemController extends Controller
                 'item_description.content' => ['required'],
                 'item_description.type' => ['required'],
                 'language_dropdown' => ['required'],
-                'file_type_dropdown' => ['required'],
+                'item_media.type' => ['required'],
                 'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
                 'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor']
             ],
@@ -198,9 +192,9 @@ class ItemController extends Controller
         }
 
         // 2. Validate media
-        $image_validator = $this->validateMedia($request, $item);
-        if ($image_validator['head'] == 'error')
-            return Redirect::back()->withErrors($image_validator['body']);
+        $image_validator = Item::validateMedia($request->item_media);
+        if ($image_validator['type'] == 'error')
+            return Redirect::back()->withErrors($image_validator['message']);
 
         // DB UPDATES
         // 1. Basic props: title and description
@@ -215,11 +209,12 @@ class ItemController extends Controller
         $this->storeAndUpdate($request, $item);
 
         // 3. Add file to media table (if updating, first delete files)
-        $this->saveMedia($image_validator, $item);
+        $item->saveMedia($image_validator);
 
         // ALL DONE
         $message = "Item #{$item->id} ({$item->title}) has been succesfully updated.";
         return redirect()->route('items.index', $request->query())->with('succes', $message);
+        
     }
 
     /**

@@ -31,6 +31,13 @@ h1, h2, h3, h4, h5, span, small, p, button, a, ul, li {
     all: unset;
 }
 
+.hidden {
+    visibility: hidden !important;
+}
+.removed {
+    display: none !important;
+}
+
 @font-face {
     font-family: Bungee;
     src: url(fonts/BungeeInline-Regular.ttf);

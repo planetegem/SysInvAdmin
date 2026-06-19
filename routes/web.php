@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\MediumController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\UploadController;
 
 
 use App\Http\Middleware\UserIsAdmin;
@@ -39,6 +40,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('items', controller: ItemController::class);
     Route::resource('categories', CategoryController::class);
+
+    Route::post('upload/tmp', [UploadController::class, 'uploadTempImage'])->name('upload.tmp');
 
 });
 
