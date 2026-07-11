@@ -7,12 +7,8 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000",
-            "description": "Local Development (Artisan Serve)"
-        },
-        {
-            "url": "https://inventory.planetegem.be",
-            "description": "Production Server"
+            "url": "/",
+            "description": "Current Environment"
         }
     ],
     "paths": {

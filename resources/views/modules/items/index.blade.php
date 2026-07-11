@@ -2,24 +2,24 @@
 
 @section('main')
 
-    <main class="inventory categories">
+    <main class="module categories">
         <section class="db-overview">
             <header class="db-overview">
-                <h4>Category Index</h4>
+                <h4>Item Index</h4>
                 <x-nav.name-date-toggle />
             </header>
 
             <nav class="db-overview">
                 <div class="container">
-                    @foreach($categories as $cat)
-                        <x-nav.index-item name="{{ $cat->name }}" timestamp="{{ $cat->updated_at }}"
-                            target="{{ query_route('categories.show', $cat) }}" 
-                            icon="{{ $cat->hidden ? 'styles/icons/hidden_icon.svg' : 'styles/icons/category_icon.svg' }}" />
+                    @foreach($items as $it)
+                        <x-nav.index-item name="{{ $it->title }}" timestamp="{{ $it->updated_at }}"
+                            target="{{ query_route('items.show', $it) }}"                             
+                            icon="{{ ($it->type == 'update') ? 'styles/icons/update_icon.svg' : 'styles/icons/simple_item_icon.svg' }}" />
                     @endforeach
                 </div>
             </nav>
             <button class="action-button">
-                <a href="{{ query_route('categories.create') }}">Add new category</a>
+                <a href="{{ query_route('items.create') }}">Add new item</a>
             </button>
         </section>
         <section class="db-form">

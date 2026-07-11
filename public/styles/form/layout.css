@@ -1,7 +1,8 @@
 /* SUBDIVIDERS USED IN FORMS */
 
 /* Titled divider: a header used to divide forms in sections */
-.titled-divider, .foldable-divider > summary {
+.titled-divider,
+.foldable-divider>summary {
     width: 65%;
     margin: auto;
     height: 1px;
@@ -29,7 +30,7 @@
             align-items: center;
         }
 
-        & > svg {
+        &>svg {
             fill: currentColor;
             height: 1em;
         }
@@ -41,19 +42,23 @@ details.foldable-divider {
     width: 100%;
     margin-top: 1em;
 
-    & > summary {
+    &>summary {
         user-select: none;
     }
-    & > summary::marker {
+
+    &>summary::marker {
         content: "";
     }
-    & > summary:hover {
+
+    &>summary:hover {
         cursor: pointer;
     }
-    & > section.large-bordered-input-element {
+
+    &>section.large-bordered-input-element {
         margin-top: 2em;
     }
 }
+
 details.foldable-divider[open] summary svg {
     rotate: 90deg;
 }
@@ -84,6 +89,25 @@ div.double-input {
 
     & label.text-input {
         width: 100%;
+    }
+}
+
+/* Section divider blade component */
+fieldset.section-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5em;
+    width: 100%;
+    margin-top: 1em;
+    border-radius: 0.5em;
+    border: solid 1px var(--light80Grey);
+    padding: 2.25em;
+    box-sizing: border-box;
+
+    &>legend {
+        color: var(--mainGrey);
+        font-size: 0.95em;
     }
 }
 

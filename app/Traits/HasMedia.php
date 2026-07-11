@@ -10,91 +10,60 @@ use Illuminate\Support\Str;
 trait HasMedia
 {
 
-    // VALIDATOR
-    // Returns a response object that informs about media validation
-    // Happy flow: returns a response object with processed media data
-    // Unhappy flow: returns response object with type = error & message = {error_message}
-    public static function validateMedia($media)
+    // MEDIA PROCESSOR
+    // Move (and convert) images where necessary
+    public static function processMedia($media)
     {
         // Basic response object returned by method
         $response = [
-            'type' => 'none',
-            'message' => '',
+            'type' => $media['type'],
             'images' => [],
             'safe_urls' => [],
         ];
 
-        switch ($media['type']) {
-            // OPTION 1: none selected as type
-            case "none":
-                return $response;
+        if ($media['type'] === "none") {
+            return $response;
+        }
 
-            // OPTION 2: image (or multiple images) selected as type
-            // Has option to convert to webp
-            case "image":
-            case "carousel":
-            case "image-list":
+        // Loop through files and prepare them
+        for ($i = 0; $i < count($media['path']); $i++) {
+            $alt = $media['alt'][$i];
+            $webp = $media['convert_to_webp'][$i];
+            $path = $media['path'][$i];
+            $name = $media['name'][$i];
 
-                // Scenario A: files are attached
-                if (count($media['path']) > 0) {
+            $finalPath = $path;
 
-                    $response['type'] = $media['type'];
-
-                    // Loop through files and prepare them
-                    for ($i = 0; $i < count($media['path']); $i++) {
-                        $alt = $media['alt'][$i];
-                        $webp = $media['convert_to_webp'][$i];
-                        $path = $media['path'][$i];
-                        $name = $media['name'][$i];
-
-                        $finalPath = $path;
-
-                        // Convert to webp if required
-                        if ($webp != 0) {
-                            try {
-                                $optimizer = new ImageOptimizer();
-                                $finalPath = $optimizer->convertToWebp($path);
-                            } catch (Exception $e) {
-                                return [
-                                    'type' => 'error',
-                                    'message' => ['item_media.type' => $e]
-                                ];
-                            }
-
-                        }
-
-                        // Move from temp storage if required
-                        if (Str::startsWith($finalPath, 'tmp/')) {
-                            $newPath = str_replace('tmp/', 'images/', $finalPath);
-                            Storage::disk('uploads')->move($finalPath, $newPath);
-                            $finalPath = $newPath;
-
-                        }
-                        $response['images'][] = [
-                            'alt' => $alt,
-                            'path' => $finalPath,
-                            'name' => $name
-                        ];
-                        $response['safe_urls'][] = $finalPath;
-
-                    }
-                    return $response;
-
-                } else {
-                    // SCENARIO B: nothing attached
+            // Convert to webp if required
+            if ($webp != 0) {
+                try {
+                    $optimizer = new ImageOptimizer();
+                    $finalPath = $optimizer->convertToWebp($path);
+                } catch (Exception $e) {
                     return [
                         'type' => 'error',
-                        'message' => ['item_media.type' => "Selected image, but did not provide image file."]
+                        'message' => ['item_media.type' => $e]
                     ];
                 }
 
-            // DEFAULT: for everything that isn't implemented yet
-            default:
-                return [
-                    'type' => 'error',
-                    'message' => ['item_media.type' => "File type not supported yet."]
-                ];
+            }
+
+            // Move from temp storage if required
+            if (Str::startsWith($finalPath, 'tmp/')) {
+                $newPath = str_replace('tmp/', 'images/', $finalPath);
+                Storage::disk('uploads')->move($finalPath, $newPath);
+                $finalPath = $newPath;
+
+            }
+            $response['images'][] = [
+                'alt' => $alt,
+                'path' => $finalPath,
+                'name' => $name
+            ];
+            $response['safe_urls'][] = $finalPath;
+
         }
+        return $response;
     }
 
     // Save a media file

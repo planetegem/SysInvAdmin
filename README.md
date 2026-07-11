@@ -74,6 +74,18 @@ When SysInvAdmin is installed, it automatically comes with OpenAPI / Swagger doc
 
 
 ## Change log
+### 0.4: Relationships module
+Added a relationships module, where you can define custom relationships. An improvement relationship manager in the items module now allows you to add as many relationships as you want to any item.
+Also installed pulse and integrated a link to the dashboard: to be used later on when performance testing becomes a thing.
+
+Refactoring:
+- Cleaned Media validation logic: validation and actual media processing have now been properly seperated out.
+- Logic to generate API responses containing items has been moved to the Item model. Will do this for all other models as well.
+- Logic to generate timestamp strings now lives in a trait that can be applied to models
+- Made names a bit less murky. Interacting with SysInvAdmin resources is now done via:
+    1) Modules: classic ResourceController with create, edit & index views. These correspond to the buttons on the left side of the UI (Items, Categories, etc)
+    2) Managers: a block within a form to create or edit seperate resources (like the CategoryManager in the Items module)
+
 
 ### 0.3: Localisation files & component refactoring
 Started using Laravel localisation files for labels and tooltips: as I go through all components and views, I'll move everything over.

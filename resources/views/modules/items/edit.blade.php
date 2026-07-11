@@ -1,4 +1,4 @@
-@extends('inventory.items.index')
+@extends('modules.items.index')
 
 @section('db-form')
 
@@ -12,7 +12,7 @@
         <x-slot:subheader>
             {!! __('item.properties.name', ['id' => $item->id, 'title' => $item->title]) !!}
             <br>
-            {!! __('item.relationships.count', ['count' => $item->children->count()]) !!}
+            {!! __('item.relationships.count', ['count' => count($item->relationships())]) !!}
             &nbsp;|&nbsp;
             {!! $item->getTimestampsAsString() !!} 
 
@@ -33,8 +33,8 @@
                 <br>
                 <span>{{ __('item.relationships.warning_relationships') }}</span>
                 <ul class="unordered-list">
-                    @foreach($item->getRelationsAsString() as $child)
-                        <li>{{ $child['text'] }}</li>
+                    @foreach($item->getRelationshipsAsString() as $rel)
+                        <li>{{ $rel['text'] }}</li>
                     @endforeach
                 </ul>
             @endif

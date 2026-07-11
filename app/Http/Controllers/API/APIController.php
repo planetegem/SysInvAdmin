@@ -12,12 +12,8 @@ use OpenApi\Attributes as OA;
     description: "This is the API documentation for the SysInvAdmin API."
 )]
 #[OA\Server(
-    url: "http://127.0.0.1:8000",
-    description: "Local Development (Artisan Serve)"
-)]
-#[OA\Server(
-    url: "https://inventory.planetegem.be",
-    description: "Production Server"
+    url: "/",
+    description: "Current Environment"
 )]
 #[OA\Tag(
     name: 'Items',

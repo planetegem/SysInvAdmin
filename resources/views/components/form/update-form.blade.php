@@ -1,6 +1,6 @@
 <div class="pink-border">
     <form 
-        class="db-form update" id="{{ $name }}" 
+        {{ $attributes->merge(['class' => 'db-form update']) }} id="{{ $name }}" 
         method="POST" action='{{ $confirmRoute }}'
         enctype="multipart/form-data" >
         

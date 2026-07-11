@@ -25,7 +25,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $categories = $this->fetchAll();
-        return view('inventory.categories.index', compact('categories'));
+        return view('modules.categories.index', compact('categories'));
     }
 
     /**
@@ -35,7 +35,7 @@ class CategoryController extends Controller
     {
         $categories = $this->fetchAll();
         $category = new Category();
-        return view('inventory.categories.create', compact('category', 'categories'));
+        return view('modules.categories.create', compact('category', 'categories'));
     }
 
     /**
@@ -69,7 +69,7 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         $categories = $this->fetchAll();
-        return view('inventory.categories.edit', compact('category', 'categories'));
+        return view('modules.categories.edit', compact('category', 'categories'));
     }
 
     /**

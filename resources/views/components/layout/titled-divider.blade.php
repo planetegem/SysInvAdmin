@@ -1,3 +1,3 @@
-<div class="titled-divider">
+<section class="titled-divider">
     <h4>{{ $slot }}</h4>
-</div>
+</section>

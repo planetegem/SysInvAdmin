@@ -1,6 +1,6 @@
 <dialog id="delete-form" class="pink-border">
 
-    <form class="db-form delete" method="POST" action='{{ $confirmRoute }}'>
+    <form {{ $attributes->merge(['class' => 'db-form delete']) }} method="POST" action='{{ $confirmRoute }}'>
         @csrf
         @method('DELETE')
 

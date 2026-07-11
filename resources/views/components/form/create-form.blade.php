@@ -1,5 +1,5 @@
 <div class="pink-border">
-    <form class="db-form create" id="{{ $name }}" method="POST"
+    <form {{ $attributes->merge(['class' => 'db-form create']) }} id="{{ $name }}" method="POST"
         action='{{ $confirmRoute }}' enctype="multipart/form-data">
         @csrf
 
@@ -26,7 +26,7 @@
         <footer class="form-footer">
             <nav>
                 @if ($cancelRoute)
-                    <a href='$cancelRoute' class="action-button passive">{{ __('button.cancel') }}</a>
+                    <a href='{{ $cancelRoute }}' class="action-button passive">{{ __('button.cancel') }}</a>
                 @endif
                 <button class="action-button">{{ __('button.confirm_create') }}</button>
             </nav>

@@ -21,10 +21,6 @@ return [
         "links" =>
             "Link to internal or external pages related to your item (for example a details page). 
             Anchor text corresponds to the text shown instead of the link, URL corresponds to the destination of your link and can be either relative or absolute.",
-        "relations" =>
-            "Express a relationship to another item. 
-            <br>
-            Relationships can't be chained: if item A is an update to item B, item B cannot become an update to item C.",
         "media_type" =>
             "Select the type of file you would like to add as medium/media. Choose between:
             <ul>

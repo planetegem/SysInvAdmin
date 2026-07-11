@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use App\Traits\HasMedia;
+use App\Traits\HasTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+
 
 class Item extends Model
 {
     use HasMedia;
+    use HasTimestamps;
 
 
     // BASE PROPS & METHODS   
@@ -111,46 +115,44 @@ class Item extends Model
     // Parents retrieves all relationships where item is is the subject
     public function parents()
     {
-        return $this->belongsToMany(Item::class, 'item_relationships', 'subject_item_id', 'direct_object_item_id')->withPivot('relationship');
+        return $this->belongsToMany(Item::class, 'item_relationships', 'subject_item_id', 'direct_object_item_id')
+            ->using(ItemRelationship::class)
+            ->withPivot('relationship_id')
+            ->withTimestamps();
     }
     public function hasParents()
     {
-        return ($this->parents->count() > 0);
+        return $this->parents()->exists();
     }
 
     // Children retrieves all relationships where item is the object
     public function children()
     {
-        return $this->belongsToMany(Item::class, 'item_relationships', 'direct_object_item_id', 'subject_item_id')->withPivot('relationship')->orderBy('created_at', 'desc');
+        return $this->belongsToMany(Item::class, 'item_relationships', 'direct_object_item_id', 'subject_item_id')
+            ->using(ItemRelationship::class)
+            ->withPivot('relationship_id')
+            ->withTimestamps();
     }
     public function hasChildren()
     {
-        return ($this->children->count() > 0);
+        return $this->children()->exists();
     }
 
-    // Combine parents and children into neutral relationships
-    private function reverseRelationship($relationship)
-    {
-        switch ($relationship) {
-            case 'update':
-                return 'master';
-            default:
-                return $relationship;
-        }
-    }
+    // Relationships retrieves all relationships, both parents and children
+    // and expresses their relationships
     public function relationships()
     {
         $relationships = [];
 
         foreach ($this->children as $child) {
             $relationships[] = [
-                'relationship' => $child->pivot->relationship,
+                'relationship' => $child->pivot->getRelationshipFor($this->id),
                 'item' => $child->id
             ];
         }
         foreach ($this->parents as $parent) {
             $relationships[] = [
-                'relationship' => $this->reverseRelationship($parent->pivot->relationship),
+                'relationship' => $parent->pivot->getRelationshipFor($this->id),
                 'item' => $parent->id
             ];
         }
@@ -158,45 +160,99 @@ class Item extends Model
     }
     public function hasRelationShips()
     {
-        return ($this->hasParents() || $this->hasChildren());
+        return $this->hasParents() || $this->hasChildren();
     }
 
-    // Method to update relationships
-    public function setRelationships($relationship)
+    // Update relationships
+    public function setRelationships(array $validatedArrayOfRelationships)
     {
-        if (!$relationship)
-            return;
+        DB::table('item_relationships')
+            ->where('subject_item_id', $this->id)
+            ->orWhere('direct_object_item_id', $this->id)
+            ->delete();
 
-        $this->parents()->detach();
-        if ($relationship['type'] == 'nothing' || $relationship['item'] == 'nothing') {
-            $this->update(['type' => 'master']);
-        } else {
-            $this->update(['type' => $relationship['type']]);
-            $this->parents()->attach($relationship['item'], ['relationship' => $relationship['type']]);
+        // 2. Convert validated data array into ItemRelationship objects
+        if (!$validatedArrayOfRelationships) return;
+
+        $relationships = [];
+        foreach($validatedArrayOfRelationships as $relationship){
+            $itemRelationship = ItemRelationship::createFromFormData($relationship, $this);
+
+            if ($itemRelationship) $relationships[] = $itemRelationship->getAttributes();
         }
+
+        // 3. Bulk insert
+        if (!empty($relationships)) DB::table('item_relationships')->insert($relationships);
     }
+
+    // API METHODS
+    // Return item as preformatted object that can be converted to JSON object
+    public function asArrayResource($include = ['description', 'media', 'categories', 'links', 'relationships']): array
+    {
+        $item = [
+            'id' => $this->id,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'type' => $this->type,
+            'language' => $this->language,
+        ];
+
+        if (in_array('description', $include))
+            $item['description'] = $this->contentBlocks()->first()->content;
+
+        if (in_array('media', $include) && $this->file_type)
+            $item['media'] = $this->returnMediaAsArray();
+
+        if (in_array('categories', $include) && $this->categories->count() > 0)
+            $item['categories'] = $this->categories->map(function (Category $category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'hidden' => $category->hidden == 0 ? false : true
+                ];
+            });
+
+        if (in_array('links', $include) && $this->links->count() > 0)
+            $item['links'] = $this->links->map(function (Link $link) {
+                return [
+                    'anchor' => $link->anchor,
+                    'url' => $link->url
+                ];
+            });
+
+
+        if (in_array('relationships', $include)) {
+            $item['relationships'] = array_map(function ($relationship) {
+                $relatedItem = Item::where('id', $relationship['item'])->first();
+                return [
+                    'relationship' => $relationship['relationship']->label,
+                    'item' => $relatedItem->asArrayResource(['media', 'links', 'categories'])
+                ];
+            }, $this->relationships());
+        }
+
+        return $item;
+    }
+
 
     // STRINGIFIERS
     // Return an array of stringified versions of relations
-    public function getRelationsAsString()
+    public function getRelationshipsAsString()
     {
-        return array_map(function ($item) {
+        return array_map(function ($relationship) {
+            $item = Item::where('id', $relationship['item'])->first();
             return [
                 'text' => __('item.relationships.relationship_format', [
-                    'title' => $item['title'],
-                    'id' => $item['id'],
-                    'type' => $item['type']
+                    'relationship' => $relationship['relationship']->descriptor,
+                    'target_name' => $item->title,
+                    'target_id' => $item->id
                 ])
             ];
-        }, $this->children->toArray());
+        }, $this->relationships());
     }
-    // Helper method to quickly get timestamps
-    public function getTimestampsAsString()
-    {
-        return __(
-            'item.properties.timestamps',
-            ['created' => $this->created_at->format('d/m/Y'), 'updated' => $this->updated_at->format('d/m/Y'),]
-        );
-    }
+    
 
 }

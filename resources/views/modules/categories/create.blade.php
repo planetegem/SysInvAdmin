@@ -1,4 +1,4 @@
-@extends('inventory.categories.index')
+@extends('modules.categories.index')
 
 @section('db-form')
 

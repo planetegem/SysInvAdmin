@@ -1,4 +1,4 @@
-@extends('inventory.categories.index')
+@extends('modules.categories.index')
 
 @section('db-form')
 
@@ -13,7 +13,8 @@
             <br>
             {!! __('category.properties.item_count', ['count' => $category->items()->count()]) !!}
             &nbsp;|&nbsp;
-            {!! $category->getTimestampsAsString() !!} </x-slot:subheader>
+            {!! $category->getTimestampsAsString() !!}
+        </x-slot:subheader>
         <x-slot:body>
             <x-form.templates.category :category="$category" />
         </x-slot:body>

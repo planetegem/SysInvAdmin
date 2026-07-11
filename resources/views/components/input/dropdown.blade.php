@@ -1,9 +1,11 @@
-<label for="{{ $id }}" class="text-input dropdown @if($tooltip) tooltip @endif">
+<label for="{{ $id }}" @class(['text-input', 'dropdown', 'tooltip' => $tooltip, 'labeled' => $label]) >
     @if ($tooltip)
         <x-info-tooltip text="{!! __($tooltip) !!}" />
     @endif
-    <h5 class="label">{{ __($label) }}</h5>
-    <select class="dropdown-input" id="{{ $id }}" name="{{ $id }}">
+    @if ($label)
+        <h5 class="label">{{ __($label) }}</h5>
+    @endif
+    <select id="{{ $id }}" name="{{ $id }}" {{ $attributes->merge(['class' => 'dropdown-input']) }}>
         {{ $slot }}
     </select>
 </label>

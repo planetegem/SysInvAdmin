@@ -29,7 +29,6 @@ return [
         "timestamps" => "Created on :created | Last updated on :updated",
         "name" => "Category #:id (:name)",
         "item_count" => "Attached to :count items",
-        "warning_attached_items"
     ],
     "input" => [
         "name" => "Category name",

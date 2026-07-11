@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RelationshipController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
@@ -40,6 +41,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('items', controller: ItemController::class);
     Route::resource('categories', CategoryController::class);
+    Route::resource('relationships', RelationshipController::class);
 
     Route::post('upload/tmp', [UploadController::class, 'uploadTempImage'])->name('upload.tmp');
 

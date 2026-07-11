@@ -99,8 +99,8 @@ nav.inventory-menu {
     }
 }
 
-/* Inventory */
-main.inventory {
+/* MODULES */
+main.module {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-template-rows: auto;
@@ -122,7 +122,7 @@ main.inventory {
 }
 
 /* Under construction page */
-main.inventory.under_construction {
+main.module.under_construction {
     grid-template-columns: auto;
 
     >div {

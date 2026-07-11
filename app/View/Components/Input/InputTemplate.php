@@ -18,9 +18,9 @@ abstract class InputTemplate extends Component
     public function __construct($value = "", $name = null, $id = null, $label = null, $tooltip = null)
     {
         $this->value = $value;
-        $this->name = $name;
+        $this->name = $name ?? $id;
         $this->id = $id ?? $name;
-        $this->label = $label ?? 'label.' . $name;
+        $this->label = $label;
         $this->tooltip = $tooltip;
     }
 

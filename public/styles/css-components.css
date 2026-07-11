@@ -52,8 +52,6 @@ a.action-button.delete {
     filter: grayscale(50);
 }
 
-
-
 label.action-button.passive:hover {
     filter: grayscale(0);
 }
@@ -64,6 +62,32 @@ a.action-button.delete:hover {
     background-color: var(--errorRed);
 }
 
+/* Hollow pill button, used for secondary actions */
+button.secondary-action-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1ch;
+    padding: 0.5em 1em;
+    border-radius: 0.5em;
+    color: var(--mainPink);
+    border: solid 2px currentColor;
+    filter: grayscale(1);
+    
+    & svg {
+        fill: currentColor;
+        height: 1.35em;
+        width: 1.35em;
+    }
+    & span {
+        margin-right: 0.5em;
+        font-weight: 600;
+    }
+}
+button.secondary-action-button:hover {
+    cursor: pointer;
+    filter: grayscale(0);
+}
 
 /* CUSTOM CHECKBOX */
 .checkbox-container {

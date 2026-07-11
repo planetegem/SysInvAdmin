@@ -2,24 +2,24 @@
 
 @section('main')
 
-    <main class="inventory categories">
+    <main class="module categories">
         <section class="db-overview">
             <header class="db-overview">
-                <h4>Item Index</h4>
+                <h4>Relationship Index</h4>
                 <x-nav.name-date-toggle />
             </header>
 
             <nav class="db-overview">
                 <div class="container">
-                    @foreach($items as $it)
-                        <x-nav.index-item name="{{ $it->title }}" timestamp="{{ $it->updated_at }}"
-                            target="{{ query_route('items.show', $it) }}"                             
-                            icon="{{ ($it->type == 'update') ? 'styles/icons/update_icon.svg' : 'styles/icons/simple_item_icon.svg' }}" />
+                    @foreach($relationships as $rel)
+                        <x-nav.index-item name="{{ $rel->name }}" timestamp="{{ $rel->updated_at }}"
+                            target="{{ query_route('relationships.show', $rel) }}" 
+                            icon="styles/icons/relationship_icon.svg" />
                     @endforeach
                 </div>
             </nav>
             <button class="action-button">
-                <a href="{{ query_route('items.create') }}">Add new item</a>
+                <a href="{{ query_route('relationships.create') }}">Add new relationship</a>
             </button>
         </section>
         <section class="db-form">

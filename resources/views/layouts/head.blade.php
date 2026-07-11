@@ -17,7 +17,9 @@
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/wysiwyg/quill.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/wysiwyg/quill.tooltip.css') }}">
 
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/blocks/media-manager.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/managers/media-manager.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/managers/relationship-manager.css') }}">
+
 
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/blade-components.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('styles/css-components.css') }}">

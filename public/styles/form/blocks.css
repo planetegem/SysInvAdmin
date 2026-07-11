@@ -61,23 +61,4 @@ main.link-manager {
     }
 }
 
-/* RELATIONSHIP MANAGER */
-main.relationship-manager {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 2ch;
-    font-family: Arial, Helvetica, sans-serif;
 
-    &>label.text-input {
-        width: fit-content;
-    }
-
-    &>div {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-}

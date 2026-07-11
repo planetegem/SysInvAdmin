@@ -114,57 +114,13 @@ class ItemGate extends Controller
     // 2b. Create item object (with include array to specify which blocks to add - default = all blocks)
     public static function stitchItem($item, $include = ['description', 'media', 'categories', 'links', 'relationships'])
     {
-        $object = [
-            'id' => $item->id,
-            'created_at' => $item->created_at,
-            'updated_at' => $item->updated_at,
-            'title' => $item->title,
-            'slug' => $item->slug,
-            'type' => $item->type,
-            'language' => $item->language,
-        ];
-        if (in_array('description', $include))
-            $object['description'] = $item->contentBlocks()->first()->content;
-
-        if (in_array('media', $include) && $item->file_type)
-            $object['media'] = $item->returnMediaAsArray();
-
-        if (in_array('categories', $include) && $item->categories->count() > 0)
-            $object['categories'] = $item->categories->map(function (Category $category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    'slug' => $category->slug,
-                    'hidden' => $category->hidden == 0 ? false : true
-                ];
-            });
-
-        if (in_array('links', $include) && $item->links->count() > 0)
-            $object['links'] = $item->links->map(function (Link $link) {
-                return [
-                    'anchor' => $link->anchor,
-                    'url' => $link->url
-                ];
-            });
-
-        if (in_array('relationships', $include)) {
-            $object['relationships'] = array_map(function ($relationship) {
-                $relatedItem = Item::where('id', $relationship['item'])->with(ItemGate::getItemCompanions(['media', 'languages', 'links', 'categories']))->first();
-                return [
-                    'relationship' => $relationship['relationship'],
-                    'item' => ItemGate::stitchItem($relatedItem, ['media', 'links', 'categories'])
-                ];
-            }, $item->relationships());
-        }
-
-        return $object;
+        return $item->asArrayResource($include);
     }
 
     // 2c. pass through for processing multiple items
     public static function stitchItems($items)
     {
-        $processed = $items->map(fn($item) => ItemGate::stitchItem($item));
-        return $processed;
+        return $items->map(fn($item) => $item->asArrayResource());
     }
 
     // QUERIES

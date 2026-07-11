@@ -1,13 +1,12 @@
 /* STYLING FOR INPUT ELEMENTS USED IN FORMS */
-
 /* Text & textarea */
 /* Also used for dropdown */
 label.text-input {
     position: relative;
-    padding: 0.75em;
     width: 100%;
     outline: solid 1px var(--light80Grey);
     border-radius: 0.5em;
+    padding: 0.5em;
     display: grid;
     box-sizing: border-box;
     text-align: center;
@@ -43,6 +42,9 @@ label.text-input {
         border: none;
         font-size: 1em;
         font-family: Arial, Helvetica, sans-serif;
+        padding: 0.5em;
+        border-radius: 0.5em;
+        
     }
 
     & input,
@@ -56,10 +58,12 @@ label.text-input {
         margin-right: 1.5em;
         padding-right: 0.5em;
     }
-    & textarea[medium]{
+
+    & textarea[medium] {
         height: 6em;
     }
-    & textarea[small]{
+
+    & textarea[small] {
         height: 3em;
     }
 
@@ -98,6 +102,25 @@ label.text-input.error {
     color: var(--errorRed);
     outline-width: 2px;
 }
+
+label.text-input:has(input[disabled]) {
+    opacity: 0.5;
+
+    & input,
+    textarea {
+        background-color: var(--light90Grey);
+    }
+}
+
+label.text-input:has(input[disabled]) {
+    outline: solid 1px var(--light80Grey);
+    cursor: none;
+
+    & h5 {
+        color: var(--mainGrey);
+    }
+}
+
 
 /* Specifically for dropdown */
 select,

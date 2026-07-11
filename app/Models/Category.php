@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\Traits\HasTimestamps;
+
 
 class Category extends Model
 {
+    use HasTimestamps;
+
     protected $fillable = [
         'name',
         'title',
@@ -40,16 +44,4 @@ class Category extends Model
             $model->slug = $slug;
         });
     }
-
-    
-    // STRINGIFIERS
-    // Helper method to quickly get timestamps
-    public function getTimestampsAsString()
-    {
-        return __(
-            'category.properties.timestamps',
-            ['created' => $this->created_at->format('d/m/Y'), 'updated' => $this->updated_at->format('d/m/Y'),]
-        );
-    }
-
 }

@@ -8,13 +8,11 @@ use App\Models\Language;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Validation\Rule;
 
 class ItemController extends Controller
 {
-    /**
-     * Fetch order list: used in all views
-     */
+    // Fetch order list: used in all views
     private function fetchAll()
     {
         $orderDirection = isset($_GET['orderBy']) && $_GET['orderBy'] == 'name' ? 'asc' : 'desc';
@@ -22,6 +20,116 @@ class ItemController extends Controller
 
         return Item::orderBy($orderBy, $orderDirection)->get();
     }
+
+    // Single validation used for both create and update
+    private function validateRequest($request)
+    {
+        // PRE-VALIDATION
+        // In case of update: fetch id being updated
+        $item = $request->route('item');
+        $itemId = is_object($item) ? $item->id : $item;
+
+        // Clean meaningless relationships
+        $relationships = collect($request->input('item_relationships', []))
+            ->reject(fn($row) => empty($row['type']) | empty($row['item']))
+            ->toArray();
+        $request->merge(['item_relationships' => $relationships]);
+
+        // VALIDATION PHASE
+        // 1. Base validation
+        $validated = Validator::make(
+            $request->all(),
+            [
+                'item_title' => [
+                    'required',
+                    'string',
+                    Rule::unique('items', 'title')->ignore($itemId)
+                ],
+                'item_description.content' => ['required'],
+                'item_description.type' => ['required'],
+                'language_dropdown' => ['required'],
+
+                // Media validation
+                'item_media.type' => ['required', 'in:none,image,carousel,image-list'],
+                'item_media.path' => [
+                    'required_if:item_media.type,image,carousel,image-list',
+                    'array'
+                ],
+                'item_media.path.*' => ['required', 'string'],
+
+                // Links validation
+                'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
+                'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor'],
+
+                // Relationships validation
+                'item_relationships' => 'nullable|array',
+                'item_relationships.*.type' => 'required_with:item_relationships.*.item|string',
+                'item_relationships.*.item' => 'required_with:item_relationships.*.type|integer|exists:items,id',
+            ],
+            [
+                // CUSTOM MESSAGES
+                // Links
+                'item_links.*.anchor.required_with' => __('custom_validation.item.link.missing_anchor'),
+                'item_links.*.url.required_with' => __('custom_validation.item.link.missing_url'),
+
+                // Description
+                'item_description.content.required' => __('custom_validation.item.description_missing'),
+                'item_description.type.required' => __('custom_validation.item.description_missing'),
+
+                // Relationships
+                'item_relationships.*.type.required_with' => __('custom_validation.item.relationship.missing_type'),
+                'item_relationships.*.item' => __('custom_validation.item.relationship.missing_target'),
+
+                // Media
+                'item_media.path.required_if' => __('custom_validation.media.path_missing'),
+                'item_media.type.in' => __('custom_validation.media.not_supported'),
+            ]
+        );
+
+        // 2. Extra validation step for relationships: can only establish one type of relationship to each item
+        $validated->after(function ($validated) use ($request) {
+            $relationships = $request->input('item_relationships', []);
+            $itemIds = array_column($relationships, 'item');
+
+            foreach ($itemIds as $index => $itemId) {
+                $matchingKeys = array_keys($itemIds, $itemId);
+
+                if (count($matchingKeys) > 1 && $matchingKeys[0] !== $index) {
+                    $validated->errors()->add(
+                        "item_relationships.{$index}.item",
+                        "You have already established a relationship with item ID {$itemId}."
+                    );
+                }
+            }
+        });
+
+        // RETURN ON VALIDATION FAIL
+        $validatedData = $validated->validated();
+
+        // POST-VALIDATION
+        // Image processing logic
+        try {
+            $processedMedia = Item::processMedia($request->item_media);
+            $validatedData['processed_media'] = $processedMedia;
+
+            return $validatedData;
+
+        } catch (\Exception $e) {
+
+            // If image processing fails, add it to the errors and throw a formal ValidationException
+            $validated->errors()->add('item_media.type', $e->getMessage());
+            throw new \Illuminate\Validation\ValidationException($validated);
+        }
+    }
+
+    // Process item relationships
+    private function setRelationships(array $validated, Item $item)
+    {
+        // 1. Clear all established relations
+
+    }
+
+
 
     private function storeAndUpdate(Request $request, Item $item)
     {
@@ -33,7 +141,7 @@ class ItemController extends Controller
         $item->syncCategories($categories);
 
         // 2. Item relationships
-        $item->setRelationships($request->relationship);
+        // $item->setRelationships($request->relationship);
 
         // 3. Item links
         $item->links()->delete();
@@ -61,7 +169,7 @@ class ItemController extends Controller
     public function index(Request $request)
     {
         $items = $this->fetchAll();
-        return view('inventory.items.index', compact('items'));
+        return view('modules.items.index', compact('items'));
     }
 
 
@@ -72,7 +180,7 @@ class ItemController extends Controller
     {
         $items = $this->fetchAll();
         $item = new Item();
-        return view('inventory.items.create', compact('item', 'items'));
+        return view('modules.items.create', compact('item', 'items'));
     }
 
     /**
@@ -80,54 +188,23 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        // VALIDATION PHASE
-        // 1. Base validation
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'item_title' => [
-                    'required',
-                    'unique:items,title'
-                ],
-                'item_description.content' => ['required'],
-                'item_description.type' => ['required'],
-                'language_dropdown' => ['required'],
-                'item_media.type' => ['required'],
-                'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
-                'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor'],
-            ],
-            [
-                'item_links.*.anchor.required_with' => 'An anchor text is required when supplying a link URL.',
-                'item_links.*.url.required_with' => 'An URL is required when supplying a link anchor.',
-                'item_description.content.required' => 'Please provide an item desciption',
-                'item_description.type.required' => 'Please provide an item desciption',
-            ]
-        );
-
-        if ($validator->fails()) {
-            return redirect('items/create')
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        // 2. Validate media
-        $image_validator = Item::validateMedia($request->item_media);
-        if ($image_validator['type'] == 'error')
-            return Redirect::back()->withErrors($image_validator['message']);
+        $validated = $this->validateRequest($request);
 
         // DB UPDATES
         // 1. Basic props: title and description
         $language = Language::where('id', intval($request->language_dropdown))->first();
         $item = $language->items()->create([
-            'title' => $request->item_title,
-            'type' => 'master'
+            'title' => $validated['item_title'],
         ]);
 
         // 2. Dependencies
         $this->storeAndUpdate($request, $item);
 
         // 3. Add file to media table (if updating, first delete files)
-        $item->saveMedia($image_validator);
+        $item->saveMedia($validated['processed_media']);
+
+        // REFACTORED: loading dependencies
+        $item->setRelationships($validated['item_relationships']);
 
         // ALL DONE
         $message = "Item #{$item->id} ({$item->title}) has been succesfully created.";
@@ -140,7 +217,7 @@ class ItemController extends Controller
     public function show(Item $item)
     {
         $items = $this->fetchAll();
-        return view('inventory.items.edit', compact('item', 'items'));
+        return view('modules.items.edit', compact('item', 'items'));
     }
 
     /**
@@ -156,51 +233,12 @@ class ItemController extends Controller
      */
     public function update(Request $request, Item $item)
     {
-        // VALIDATION PHASE
-        // 1. Base validation
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'item_title' => [
-                    'required',
-                    'unique:items,title,' . $item->id,
-                ],
-                'item_description.content' => ['required'],
-                'item_description.type' => ['required'],
-                'language_dropdown' => ['required'],
-                'item_media.type' => ['required'],
-                'item_links.*.anchor' => ['nullable', 'required_with:item_links.*.url'],
-                'item_links.*.url' => ['nullable', 'required_with:item_links.*.anchor']
-            ],
-            [
-                'item_links.*.anchor.required_with' => 'An anchor text is required when supplying a link URL.',
-                'item_links.*.url.required_with' => 'An URL is required when supplying a link anchor.',
-                'item_description.content.required' => 'Please provide an item desciption',
-                'item_description.type.required' => 'Please provide an item desciption',
-            ]
-        );
-
-        if ($validator->fails()) {
-            return redirect('items/create')
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        // 1.1. Refuse to make update if already has updates itself
-        if (isset($request->relationship['type']) && $request->relationship['type'] != 'nothing' && $item->hasChildren()) {
-            return Redirect::back()->withErrors(['relationship[type]' => "Cannot become a depency while already having dependencies."]);
-        }
-
-        // 2. Validate media
-        $image_validator = Item::validateMedia($request->item_media);
-        if ($image_validator['type'] == 'error')
-            return Redirect::back()->withErrors($image_validator['message']);
+        $validated = $this->validateRequest($request);
 
         // DB UPDATES
         // 1. Basic props: title and description
         $item->update([
             'title' => $request->item_title,
-            'type' => 'master',
             'language_id' => intval($request->language_dropdown),
         ]);
         $item->touch();
@@ -209,12 +247,15 @@ class ItemController extends Controller
         $this->storeAndUpdate($request, $item);
 
         // 3. Add file to media table (if updating, first delete files)
-        $item->saveMedia($image_validator);
+        $item->saveMedia($validated['processed_media']);
+
+        // REFACTORED: loading dependencies
+        $item->setRelationships($validated['item_relationships']);
 
         // ALL DONE
         $message = "Item #{$item->id} ({$item->title}) has been succesfully updated.";
         return redirect()->route('items.index', $request->query())->with('succes', $message);
-        
+
     }
 
     /**

@@ -35,6 +35,6 @@ return [
         "count" => "Has :count dependencies",
         "relationship_heading" => "The following items have a relationship with this item:",
         "warning_relationships" => "Doing so would remove the following relationships:",
-        "relationship_format" => ":title (item #:id | applied as :type)",
+        "relationship_format" => ":relationship :target_name (item #:target_id)",
     ]
 ];

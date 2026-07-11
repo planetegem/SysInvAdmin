@@ -1,6 +1,7 @@
 @extends('layouts.head')
 
 @section('body')
+
     <body class="main" onload="document.querySelectorAll('.open.modal').forEach((e) => e.showModal());">
         <header class="dashboard">
 
@@ -10,6 +11,7 @@
 
             <nav class="top-right-header">
                 <a class="top-right-header" href="/api/documentation" target="_self">documentation</a>
+                <a class="top-right-header" href="/pulse" target="_self">performance</a>
 
                 @if (Auth::check() && auth()->user()->role != 'user')
                     <a class="top-right-header" href="/admin" target="_self">admin</a>
@@ -28,13 +30,14 @@
         <aside>
             <nav class="inventory-menu">
                 <ul>
-                    <x-menu-item target="items" icon="styles/icons/item_icon.svg"/>
-                    <x-menu-item target="categories" icon="styles/icons/category_icon.svg"/>
-                    <x-menu-item target="media" icon="styles/icons/media_icon.svg"/>
+                    <x-menu-item target="items" icon="styles/icons/item_icon.svg" />
+                    <x-menu-item target="categories" icon="styles/icons/category_icon.svg" />
+                    <x-menu-item target="media" icon="styles/icons/media_icon.svg" />
+                    <x-menu-item target="relationships" icon="styles/icons/relationship_icon.svg" />
                 </ul>
             </nav>
         </aside>
-        
+
         @yield('main')
 
     </body>

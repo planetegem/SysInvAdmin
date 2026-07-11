@@ -1,4 +1,5 @@
 @props(['category'])
+
 <x-input.text name="category_name" value="{{ $category->name }}" label="category.input.name"
     tooltip="category.tooltip.name" required />
 
