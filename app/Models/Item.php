@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Http\Resources\MediumResource;
+use App\Traits\HasContentBlocks;
 use App\Traits\HasMedia;
 use App\Traits\HasTimestamps;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +15,7 @@ class Item extends Model
 {
     use HasMedia;
     use HasTimestamps;
+    use HasContentBlocks;
 
 
     // BASE PROPS & METHODS   
@@ -27,20 +30,27 @@ class Item extends Model
     ];
 
     // Boot method includes logic to fill the slug field
-    protected static function boot()
+    // And logic to delete media before cascading
+    protected static function booted(): void
     {
-        parent::boot();
-
         static::saving(function ($model) {
-            $slug = Str::slug($model->title);
-            $originalSlug = $slug;
-            $count = 1;
+            // Prevent regenerations if the title hasn't changed on an existing record
+            if ($model->isDirty('title')) {
+                $slug = Str::slug($model->title);
+                $originalSlug = $slug;
+                $count = 1;
 
-            while (static::where('slug', $slug)->exists()) {
-                $slug = "{$originalSlug}-{$count}";
-                $count++;
+                while (static::where('slug', $slug)->where('id', '!=', $model->id)->exists()) {
+                    $slug = "{$originalSlug}-{$count}";
+                    $count++;
+                }
+
+                $model->slug = $slug;
             }
-            $model->slug = $slug;
+        });
+
+        static::deleting(function ($model) {
+            $model->media()->get()->each->delete();
         });
     }
 
@@ -80,29 +90,11 @@ class Item extends Model
         $this->categories()->sync($category_ids);
     }
 
-    // Content Blocks = html enabled description of an item
-    // many (content blocks) to 1 (item)
-    public function contentBlocks()
-    {
-        return $this->morphMany(ContentBlock::class, 'contentable');
-    }
-    // Items will likely only have 1 content block, so include shorthand to fetch only the first block
-    public function firstContentBlock()
-    {
-        return $this->contentBlocks()->first();
-    }
 
     // Language: 1 (language) to many (items)
     public function language()
     {
         return $this->belongsTo(Language::class);
-    }
-
-    // Media: many (media) to 1 (item)
-    // Example of item with many media: gallery
-    public function media()
-    {
-        return $this->morphMany(Medium::class, 'mediable');
     }
 
     // Links: many (links) to 1 (item)
@@ -147,13 +139,13 @@ class Item extends Model
         foreach ($this->children as $child) {
             $relationships[] = [
                 'relationship' => $child->pivot->getRelationshipFor($this->id),
-                'item' => $child->id
+                'item' => $child
             ];
         }
         foreach ($this->parents as $parent) {
             $relationships[] = [
                 'relationship' => $parent->pivot->getRelationshipFor($this->id),
-                'item' => $parent->id
+                'item' => $parent
             ];
         }
         return $relationships;
@@ -172,87 +164,66 @@ class Item extends Model
             ->delete();
 
         // 2. Convert validated data array into ItemRelationship objects
-        if (!$validatedArrayOfRelationships) return;
+        if (!$validatedArrayOfRelationships)
+            return;
 
         $relationships = [];
-        foreach($validatedArrayOfRelationships as $relationship){
+        foreach ($validatedArrayOfRelationships as $relationship) {
             $itemRelationship = ItemRelationship::createFromFormData($relationship, $this);
 
-            if ($itemRelationship) $relationships[] = $itemRelationship->getAttributes();
+            if ($itemRelationship)
+                $relationships[] = $itemRelationship->getAttributes();
         }
 
         // 3. Bulk insert
-        if (!empty($relationships)) DB::table('item_relationships')->insert($relationships);
+        if (!empty($relationships))
+            DB::table('item_relationships')->insert($relationships);
     }
 
     // API METHODS
-    // Return item as preformatted object that can be converted to JSON object
-    public function asArrayResource($include = ['description', 'media', 'categories', 'links', 'relationships']): array
+    // Model query scope: determines which relations need to be eager loaded
+    public function scopeWithCompanions($query)
     {
-        $item = [
-            'id' => $this->id,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'title' => $this->title,
-            'slug' => $this->slug,
-            'type' => $this->type,
-            'language' => $this->language,
-        ];
-
-        if (in_array('description', $include))
-            $item['description'] = $this->contentBlocks()->first()->content;
-
-        if (in_array('media', $include) && $this->file_type)
-            $item['media'] = $this->returnMediaAsArray();
-
-        if (in_array('categories', $include) && $this->categories->count() > 0)
-            $item['categories'] = $this->categories->map(function (Category $category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    'slug' => $category->slug,
-                    'hidden' => $category->hidden == 0 ? false : true
-                ];
-            });
-
-        if (in_array('links', $include) && $this->links->count() > 0)
-            $item['links'] = $this->links->map(function (Link $link) {
-                return [
-                    'anchor' => $link->anchor,
-                    'url' => $link->url
-                ];
-            });
-
-
-        if (in_array('relationships', $include)) {
-            $item['relationships'] = array_map(function ($relationship) {
-                $relatedItem = Item::where('id', $relationship['item'])->first();
-                return [
-                    'relationship' => $relationship['relationship']->label,
-                    'item' => $relatedItem->asArrayResource(['media', 'links', 'categories'])
-                ];
-            }, $this->relationships());
-        }
-
-        return $item;
+        return $query->with($this::getBaseCompanions());
     }
 
+    // Base relations to include in with() to avoid N+1 queries
+    public static function getBaseCompanions(): array
+    {
+        return [
+            'contentBlock',
+            'categories',
+            'links',
+            'media.images',
+            'media.videos',
+            'media.models3d',
+            'language',
+            'children',
+            'parents'
+        ];
+    }
+    // Return the base relations, but then prefixed so they can be used from point POV of another relation
+    public static function getPrefixedCompanions($prefix): array
+    {
+        return array_map(function ($companion) use ($prefix) {
+            return "{$prefix}.{$companion}";
+        }, Item::getBaseCompanions());
+    }
 
     // STRINGIFIERS
     // Return an array of stringified versions of relations
     public function getRelationshipsAsString()
     {
         return array_map(function ($relationship) {
-            $item = Item::where('id', $relationship['item'])->first();
             return [
                 'text' => __('item.relationships.relationship_format', [
                     'relationship' => $relationship['relationship']->descriptor,
-                    'target_name' => $item->title,
-                    'target_id' => $item->id
+                    'target_name' => $relationship['item']->title,
+                    'target_id' => $relationship['item']->id
                 ])
             ];
         }, $this->relationships());
     }
-    
+
 
 }

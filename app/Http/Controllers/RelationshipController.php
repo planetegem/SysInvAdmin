@@ -49,7 +49,7 @@ class RelationshipController extends Controller
         return $validated;
     }
 
-    // Display a listing of the resource.
+    // Display a listing of the resource
     public function index()
     {
         $relationships = $this->fetchAll();
@@ -67,7 +67,6 @@ class RelationshipController extends Controller
     // Store a newly created resource in storage.
     public function store(Request $request)
     {
-
         $validated = $this->validateRequest($request);
 
         $relationship = Relationship::create([

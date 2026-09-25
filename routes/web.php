@@ -42,8 +42,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('items', controller: ItemController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('relationships', RelationshipController::class);
+    Route::resource('media', MediumController::class);
 
-    Route::post('upload/tmp', [UploadController::class, 'uploadTempImage'])->name('upload.tmp');
+    Route::post('upload/tmp', [UploadController::class, 'uploadTempFile'])->name('upload.tmp');
 
 });
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\View\Components\Form;
+namespace App\View\Components\Module\Container;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-abstract class FormTemplate extends Component
+abstract class ContainerTemplate extends Component
 {
     protected $componentPath;
 

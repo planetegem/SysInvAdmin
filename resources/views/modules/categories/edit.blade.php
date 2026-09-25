@@ -2,7 +2,7 @@
 
 @section('db-form')
 
-    <x-form.update-form :confirm-route="query_route('categories.update', $category)" name="category-update-form"
+    <x-module.container.update :confirm-route="query_route('categories.update', $category)" name="category-update-form"
         :cancel-route="query_route('categories.index')">
 
         <x-slot:header>
@@ -16,12 +16,12 @@
             {!! $category->getTimestampsAsString() !!}
         </x-slot:subheader>
         <x-slot:body>
-            <x-form.templates.category :category="$category" />
+            <x-module.category :category="$category" />
         </x-slot:body>
 
-    </x-form.update-form>
+    </x-module.container.update>
 
-    <x-form.delete-form :confirm-route="query_route('categories.destroy', $category)">
+    <x-module.container.delete :confirm-route="query_route('categories.destroy', $category)">
 
         <x-slot:header>
             {!! __('category.header.delete') !!}
@@ -32,6 +32,6 @@
             {!! __('category.message.warning_attached_items', ['count' => $category->items()->count()]) !!}
         </x-slot:message>
 
-    </x-form.delete-form>
+    </x-module.container.delete>
 
 @endsection

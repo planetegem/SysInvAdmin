@@ -30,21 +30,20 @@ class ItemRelationship extends Pivot
     // Get relationship details based on perspective
     public function getRelationshipFor(int $itemId)
     {
-        $rel = $this->relationship;
+        $rel = $this->relationship ?? $this->load('relationship')->relationship;
 
-        if (!$rel)
+        if (!$rel) {
             return (object) ['label' => 'related_to', 'descriptor' => 'related_to'];
+        }
 
         $isObject = ($this->direct_object_item_id === $itemId);
         $prefix = $isObject ? 'subject' : 'object';
-        $label = $rel->{"{$prefix}_label"};
-        $descriptor = $rel->{"{$prefix}_descriptor"};
 
         return (object) [
-            'label' => $label,
-            'descriptor' => $descriptor,
+            'label' => $rel->{"{$prefix}_label"},
+            'descriptor' => $rel->{"{$prefix}_descriptor"},
             'name' => $rel->name,
-            'consolidated_name' => $rel->name . '|' . $label,
+            'consolidated_name' => $rel->name . '|' . $rel->{"{$prefix}_label"},
         ];
     }
 
@@ -56,13 +55,16 @@ class ItemRelationship extends Pivot
     ];
 
     // Make ItemRelationship instance from form request
-    public static function createFromFormData(array $validatedRow, Item $currentItem): ?self {
+    public static function createFromFormData(array $validatedRow, Item $currentItem): ?self
+    {
         // Parse type to establish relationship type
-        if (!str_contains($validatedRow['type'] ?? '', '|')) return null;
+        if (!str_contains($validatedRow['type'] ?? '', '|'))
+            return null;
         [$relationshipName, $chosenLabel] = explode('|', $validatedRow['type']);
 
         $relationshipType = Relationship::where('name', $relationshipName)->first();
-        if (!$relationshipType) return null;
+        if (!$relationshipType)
+            return null;
 
         // Get target item
         $targetId = $validatedRow['item'];
@@ -70,16 +72,16 @@ class ItemRelationship extends Pivot
         // Get direction of relationship
         if ($relationshipType->subject_label === $chosenLabel) {
             $subjectId = $currentItem->id;
-            $objectId  = $targetId;
+            $objectId = $targetId;
         } else {
             $subjectId = $targetId;
-            $objectId  = $currentItem->id;
+            $objectId = $currentItem->id;
         }
 
         // Return instance of self
         $instance = new self([
-            'relationship_id'       => $relationshipType->id,
-            'subject_item_id'       => $subjectId,
+            'relationship_id' => $relationshipType->id,
+            'subject_item_id' => $subjectId,
             'direct_object_item_id' => $objectId,
         ]);
         $instance->updateTimestamps();

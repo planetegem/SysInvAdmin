@@ -74,6 +74,14 @@ When SysInvAdmin is installed, it automatically comes with OpenAPI / Swagger doc
 
 
 ## Change log
+### 0.5: Media module
+Exposed the media module, where media can be created independently from items. The media manager was also updated to allow more types of media:
+- video: simple video file (with logic to create a poster image)
+- gifv: principally the same as video, but signals the frontend that it needs to be played on a loop with video controls disabled
+- model3D: a 3D model to be rendered in your viewer of choice
+
+Media files also show a lot more meta data in the API + add specific media routes to the API + completely reworked the API to put all response data in resources instead of in the API controller.
+
 ### 0.4: Relationships module
 Added a relationships module, where you can define custom relationships. An improvement relationship manager in the items module now allows you to add as many relationships as you want to any item.
 Also installed pulse and integrated a link to the dashboard: to be used later on when performance testing becomes a thing.

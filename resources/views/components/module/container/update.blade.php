@@ -11,10 +11,10 @@
             <x-nav.exit-button type="anchor" href='{{ $cancelRoute }}' />
         @endif
         <header>
-             @if ($header)
+             @if (isset($header))
                 <h3>{!! $header !!}</h3>
             @endif ($header)
-            @if ($subheader)
+            @if (isset($subheader))
                 <p>{!! $subheader !!}</p>
             @endif
             <ul class="error-list">

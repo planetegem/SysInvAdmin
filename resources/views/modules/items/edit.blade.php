@@ -3,7 +3,7 @@
 @section('db-form')
 
 
-    <x-form.update-form :confirm-route="query_route('items.update', $item)" name="item-update-form"
+    <x-module.container.update :confirm-route="query_route('items.update', $item)" name="item-update-form"
         :cancel-route="query_route('items.index')">
 
         <x-slot:header>
@@ -18,11 +18,11 @@
 
         </x-slot:subheader>
         <x-slot:body>
-            <x-form.templates.item :item="$item" />
+            <x-module.item :item="$item" />
         </x-slot:body>
 
     </x-form.update-form>
-    <x-form.delete-form :confirm-route="query_route('items.destroy', $item)">
+    <x-module.container.delete :confirm-route="query_route('items.destroy', $item)">
         <x-slot:header>
             {!! __('item.header.delete') !!}
         </x-slot:header>
@@ -39,7 +39,7 @@
                 </ul>
             @endif
         </x-slot:message>
-    </x-form.delete-form>
+    </x-module.container.delete>
 
 
 @endsection

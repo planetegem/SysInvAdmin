@@ -2,7 +2,7 @@
 
 @section('db-form')
 
-    <x-form.create-form :confirm-route="query_route('categories.store')" name="category-create-form"
+    <x-module.container.create :confirm-route="query_route('categories.store')" name="category-create-form"
         :cancel-route="query_route('categories.index')">
 
         <x-slot:header>
@@ -12,9 +12,9 @@
             {!! __('category.message.create') !!}
         </x-slot:subheader>
         <x-slot:body>
-            <x-form.templates.category :category="$category" />
+            <x-module.category :category="$category" />
         </x-slot:body>
 
-    </x-form.create-form>
+    </x-module.container.create>
 
 @endsection

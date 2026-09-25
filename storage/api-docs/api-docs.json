@@ -12,13 +12,140 @@
         }
     ],
     "paths": {
+        "/api/categories/index": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "A simple category index, useful for building URLs in the frontend.",
+                "operationId": "37d2ced4e9ff9019b0f4ba622da2052d",
+                "responses": {
+                    "200": {
+                        "description": "List of category references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoryIndex"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories/all": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Fetch all categories, including meta data and id's of related items",
+                "operationId": "1191f6cb3151809beb26121a51c69f80",
+                "parameters": [
+                    {
+                        "name": "includeHidden",
+                        "in": "query",
+                        "description": "Include hidden categories",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of category references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoryResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories/{id_type}/{id}": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Fetch a specific category by ID or slug, including all related items",
+                "operationId": "53cff77105dbe311468409c6a64f086f",
+                "parameters": [
+                    {
+                        "name": "id_type",
+                        "in": "path",
+                        "description": "Type of identifier provided in the URL path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "id",
+                            "enum": [
+                                "id",
+                                "slug"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The category ID integer or category slug string",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "11"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order of returned items related to the category",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "creation-descending",
+                            "enum": [
+                                "creation-ascending",
+                                "creation-descending"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Category details with items tree",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CategoryResource"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid identifier type provided"
+                    },
+                    "404": {
+                        "description": "Category not found"
+                    }
+                }
+            }
+        },
         "/api/items/index": {
             "get": {
                 "tags": [
                     "Items"
                 ],
                 "summary": "A simple item index, containing only the item id and slug. Useful to build URLs in the frontend.",
-                "operationId": "847d5b09fadec139fefffa3b1bad5cba",
+                "operationId": "fc6500f68a95477aedae3ea219a4eb94",
                 "responses": {
                     "200": {
                         "description": "List of item references",
@@ -27,7 +154,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Index"
+                                        "$ref": "#/components/schemas/ItemIndex"
                                     }
                                 }
                             }
@@ -42,12 +169,12 @@
                     "Items"
                 ],
                 "summary": "Fetch items",
-                "operationId": "ce23140ec4e988009737e435dd46c7a0",
+                "operationId": "29f1465d33e954160c3999d07a42d9cb",
                 "parameters": [
                     {
                         "name": "languages[]",
                         "in": "query",
-                        "description": "Filter items by language (short name). Accepts multiple languages.",
+                        "description": "Filter items by language (short name). Accepts multiple languages (OR).",
                         "required": false,
                         "style": "form",
                         "explode": true,
@@ -59,9 +186,9 @@
                         }
                     },
                     {
-                        "name": "languages_ids[]",
+                        "name": "language_ids[]",
                         "in": "query",
-                        "description": "Filter items by language (id). Accepts multiple languages.",
+                        "description": "Filter items by language (id). Accepts multiple languages (OR).",
                         "required": false,
                         "style": "form",
                         "explode": true,
@@ -75,7 +202,7 @@
                     {
                         "name": "categories[]",
                         "in": "query",
-                        "description": "Filter items by category (identified with slug). Accepts multiple categories.",
+                        "description": "Filter items by category (identified with slug). Accepts multiple categories (OR).",
                         "required": false,
                         "style": "form",
                         "explode": true,
@@ -89,7 +216,7 @@
                     {
                         "name": "category_ids[]",
                         "in": "query",
-                        "description": "Filter items by category (identified with id). Accepts multiple categories.",
+                        "description": "Filter items by category (identified with id). Accepts multiple categories (OR).",
                         "required": false,
                         "style": "form",
                         "explode": true,
@@ -103,11 +230,31 @@
                     {
                         "name": "order",
                         "in": "query",
-                        "description": "Define order in which to return items (descending or ascending, by creation date)",
+                        "description": "Define order which items are returned (descending or ascending, by creation date)",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "default": "descending"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
                         }
                     }
                 ],
@@ -120,12 +267,24 @@
                                     "properties": {
                                         "count": {
                                             "type": "integer",
+                                            "example": 42
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
                                             "example": 1
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 15
                                         },
                                         "result": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/components/schemas/Item"
+                                                "$ref": "#/components/schemas/ItemResource"
                                             }
                                         }
                                     },
@@ -143,16 +302,30 @@
                     "Items"
                 ],
                 "summary": "Fetch specific item, based on its internal id",
-                "operationId": "7ebc313b20c84022a2dbc9a392ae84db",
+                "operationId": "55999401c2a396a4f67dd079c80e84da",
                 "parameters": [
                     {
-                        "name": "item_id",
+                        "name": "id_type",
                         "in": "path",
-                        "description": "Unique ID of the item",
+                        "description": "Type of identifier provided in the URL path",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "example": 101
+                            "type": "string",
+                            "example": "id",
+                            "enum": [
+                                "id",
+                                "slug"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The item ID integer or item slug string",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "11"
                         }
                     }
                 ],
@@ -162,189 +335,16 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Item"
+                                    "$ref": "#/components/schemas/ItemResource"
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Invalid identifier type provided"
                     },
                     "404": {
                         "description": "Item not found"
-                    }
-                }
-            }
-        },
-        "/api/items/slug/{item_slug}": {
-            "get": {
-                "tags": [
-                    "Items"
-                ],
-                "summary": "Fetch specific item, based on its slug (unique)",
-                "operationId": "448061940252a8b076dfaa15be4dacd6",
-                "parameters": [
-                    {
-                        "name": "item_slug",
-                        "in": "path",
-                        "description": "Slug of the item",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "het-vleeskanon-van-clementijn"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Succes",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Item"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Item not found"
-                    }
-                }
-            }
-        },
-        "/api/categories/index": {
-            "get": {
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "A simple category index, containing only category id and slug. Useful for building URLs in the frontend.",
-                "operationId": "47960dfa49a618956f795615c187667a",
-                "responses": {
-                    "200": {
-                        "description": "List of category references",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Index"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/categories/all": {
-            "get": {
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "Fetch all categories, including id's of related items",
-                "operationId": "3fac467eb785dbebd63a98204c501049",
-                "responses": {
-                    "200": {
-                        "description": "List of category references",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Category"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/categories/id/{category_id}": {
-            "get": {
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "Fetch a specific category with its id, including full tree of all related items",
-                "operationId": "5e274f224dd0d5ae12cd7fad65b5a31e",
-                "parameters": [
-                    {
-                        "name": "category_id",
-                        "in": "path",
-                        "description": "Unique ID of the category",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 101
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "description": "Define order in which to return items related to the category. Possible orders: creation-ascending, creation-descending.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "default": "creation-descending"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of category references",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Category"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Category not found"
-                    }
-                }
-            }
-        },
-        "/api/categories/slug/{category_slug}": {
-            "get": {
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "Fetch a specific category with its slug, including full tree of all related items",
-                "operationId": "b6aaa3d884349718a76cbdf5e963b523",
-                "parameters": [
-                    {
-                        "name": "category_slug",
-                        "in": "path",
-                        "description": "Unique slug of the category",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "het-vleeskanon"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "description": "Define order in which to return items related to the category. Possible orders: creation-ascending, creation-descending.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "default": "creation-descending"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of category references",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Category"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Category not found"
                     }
                 }
             }
@@ -355,7 +355,7 @@
                     "Languages"
                 ],
                 "summary": "Fetch all languages, including id's of related items",
-                "operationId": "833b0323f5c034d759814d1cd889c758",
+                "operationId": "ed86294b8004138952dc24bdf2a0d1d2",
                 "responses": {
                     "200": {
                         "description": "List of language references",
@@ -364,7 +364,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Language"
+                                        "$ref": "#/components/schemas/LanguageResource"
                                     }
                                 }
                             }
@@ -373,45 +373,66 @@
                 }
             }
         },
-        "/api/languages/id/{language_id}": {
+        "/api/languages/{id_type}/{id}": {
             "get": {
                 "tags": [
                     "Languages"
                 ],
-                "summary": "Fetch a specific language with its id, including full tree of all related items",
-                "operationId": "00583aa8233fb2c25208d02c1b40d153",
+                "summary": "Fetch a specific Language by ID or name, including all related items",
+                "operationId": "3e914c5295f6bb752d5b8d71bc84167b",
                 "parameters": [
                     {
-                        "name": "language_id",
+                        "name": "id_type",
                         "in": "path",
-                        "description": "Unique ID of the language",
+                        "description": "Type of identifier provided in the URL path",
                         "required": true,
                         "schema": {
-                            "type": "integer",
-                            "example": 1
+                            "type": "string",
+                            "example": "id",
+                            "enum": [
+                                "id",
+                                "name"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The language ID integer or language slug string",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "11"
                         }
                     },
                     {
                         "name": "order",
                         "in": "query",
-                        "description": "Define order in which to return items related to the language. Possible orders: creation-ascending, creation-descending.",
+                        "description": "Order of returned items related to the language",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "creation-descending"
+                            "default": "creation-descending",
+                            "enum": [
+                                "creation-ascending",
+                                "creation-descending"
+                            ]
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of language references",
+                        "description": "Language details with items tree",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Language"
+                                    "$ref": "#/components/schemas/LanguageResource"
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Invalid identifier type provided"
                     },
                     "404": {
                         "description": "Language not found"
@@ -419,48 +440,153 @@
                 }
             }
         },
-        "/api/languages/name/{language_short_name}": {
+        "/api/media/index": {
             "get": {
                 "tags": [
-                    "Languages"
+                    "Media"
                 ],
-                "summary": "Fetch a specific language with its unique short name, including full tree of all related items",
-                "operationId": "d39173d792a224540340d58eb778916c",
+                "summary": "A simple media index. Tells you the tpe of a medium and whether its attached to anything.",
+                "operationId": "4d52b3e2ad4241d661c949c3a211f28c",
+                "responses": {
+                    "200": {
+                        "description": "List of media references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MediumIndex"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/media/all": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Fetch media",
+                "operationId": "d7d941a00527b4b5d5e78b906c26b493",
                 "parameters": [
                     {
-                        "name": "language_short_name",
-                        "in": "path",
-                        "description": "Unique short name of the language",
-                        "required": true,
+                        "name": "types[]",
+                        "in": "query",
+                        "description": "Filter items by type. Accepts multiple types (OR).",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
                         "schema": {
-                            "type": "string",
-                            "example": "en"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         }
                     },
                     {
                         "name": "order",
                         "in": "query",
-                        "description": "Define order in which to return items related to the language. Possible orders: creation-ascending, creation-descending.",
+                        "description": "Define order which media are returned (descending or ascending, by creation date)",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "default": "creation-descending"
+                            "default": "descending"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of language references",
+                        "description": "Success",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Language"
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 42
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/MediumResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/media/id/{id}": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Fetch specific medium, based on its internal id",
+                "operationId": "9f5ea1f005d460ea6fb4d8b6461c1c4c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The medium ID integer",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "11"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Succes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MediumResource"
                                 }
                             }
                         }
                     },
                     "404": {
-                        "description": "Language not found"
+                        "description": "Media item not found"
                     }
                 }
             }
@@ -468,8 +594,31 @@
     },
     "components": {
         "schemas": {
-            "Category": {
-                "title": "Category",
+            "CategoryIndex": {
+                "title": "Category Index",
+                "description": "Bare minimum category representation for URL building",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 11
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Het Vleeskanon"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "het-vleeskanon"
+                    },
+                    "hidden": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "CategoryResource": {
+                "title": "Category Resource",
                 "description": "A category used to label or tag items",
                 "properties": {
                     "id": {
@@ -486,111 +635,153 @@
                     },
                     "title": {
                         "type": "string",
-                        "example": "The Meatcannon (all chapters)"
+                        "example": "The Meatcannon (all chapters)",
+                        "nullable": true
                     },
                     "description": {
                         "type": "string",
-                        "example": "A short (or absent) description of the category, for public use"
+                        "example": "A short (or absent) description of the category, for public use",
+                        "nullable": true
                     },
                     "meta_title": {
                         "type": "string",
-                        "example": "SEO title of the category"
+                        "example": "SEO title of the category",
+                        "nullable": true
                     },
                     "meta_description": {
                         "type": "string",
-                        "example": "SEO description of the category"
+                        "example": "SEO description of the category",
+                        "nullable": true
                     },
                     "hidden": {
                         "type": "boolean",
                         "example": true
                     },
                     "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Item"
-                        }
+                        "oneOf": [
+                            {
+                                "description": "Array of simplified Item objects (purely to construct links)",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ItemIndex"
+                                }
+                            },
+                            {
+                                "description": "Array of detailed Item objects (when fetching a single category)",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ItemResource"
+                                }
+                            }
+                        ]
                     }
                 },
                 "type": "object"
             },
-            "Index": {
-                "title": "Index",
-                "description": "Index containing id and slug, useful for building URL's",
+            "ImageResource": {
+                "title": "Image Resource",
+                "description": "Images saved on the server: their paths and meta data.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "naked_man"
+                    },
+                    "path": {
+                        "type": "string",
+                        "example": "https://example.com/storage/images/image_of_naked_man.webp"
+                    },
+                    "alt": {
+                        "type": "string",
+                        "example": "An image of a naked man",
+                        "nullable": true
+                    },
+                    "properties": {
+                        "properties": {
+                            "mime": {
+                                "type": "string",
+                                "example": "image/webp"
+                            },
+                            "size": {
+                                "type": "integer",
+                                "example": 10234
+                            },
+                            "width": {
+                                "type": "integer",
+                                "example": 550
+                            },
+                            "height": {
+                                "type": "integer",
+                                "example": 1000
+                            },
+                            "aspect_ratio": {
+                                "type": "number",
+                                "example": 0.55
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ItemIndex": {
+                "title": "Item Index",
+                "description": "Return the item id, slug and name, exactly enough to create a link to an individual item.",
                 "properties": {
                     "id": {
                         "type": "integer",
-                        "example": 15
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Mangerie Online, version 2"
                     },
                     "slug": {
                         "type": "string",
-                        "example": "example-of-index-item"
+                        "example": "mangerie-online-version-2"
                     }
                 },
                 "type": "object"
             },
-            "Link": {
-                "title": "Link",
-                "description": "",
+            "ItemRelationship": {
+                "title": "Item Relationship Resource",
                 "properties": {
-                    "anchor": {
-                        "type": "string",
-                        "example": "visit the best site ever"
-                    },
-                    "url": {
-                        "type": "string",
-                        "example": "https://www.planetegem.be"
-                    }
-                },
-                "type": "object"
-            },
-            "Media": {
-                "title": "Media",
-                "description": "Media attached to other instances, with links to relevant files",
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "example": "thumbnail"
-                    },
-                    "files": {
-                        "type": "array",
-                        "items": {
-                            "properties": {
-                                "path": {
-                                    "type": "string",
-                                    "example": "images/image.webp"
-                                },
-                                "alt": {
-                                    "type": "string",
-                                    "example": "An example image"
-                                },
-                                "original_name": {
-                                    "type": "string",
-                                    "example": "private_name.png"
-                                }
+                    "relationship": {
+                        "properties": {
+                            "label": {
+                                "type": "string",
+                                "example": "parent_of"
                             },
-                            "type": "object"
-                        }
+                            "descriptor": {
+                                "type": "string",
+                                "example": "is a parent of"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "item": {
+                        "type": "integer",
+                        "example": 22
                     }
                 },
                 "type": "object"
             },
-            "Item": {
-                "title": "Item",
-                "description": "An item from the inventory",
+            "ItemResource": {
+                "title": "Item Resource",
+                "description": "Represents an individual item along with its conditionally loaded relationships and media.",
                 "properties": {
                     "id": {
                         "type": "integer",
-                        "example": 11
+                        "example": 1
                     },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-03-16T00:00:00.000000Z"
+                        "example": "2026-09-14T15:00:00.000000Z"
                     },
                     "updated_at": {
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-03-16T00:00:00.000000Z"
+                        "example": "2026-09-14T15:00:00.000000Z"
                     },
                     "title": {
                         "type": "string",
@@ -601,52 +792,58 @@
                         "example": "mangerie-online-version-2"
                     },
                     "description": {
-                        "type": "html",
-                        "example": "<p>A short description</p>"
-                    },
-                    "type": {
+                        "description": "Rendered content block string, can contain HTML.",
                         "type": "string",
-                        "example": "update"
+                        "example": "<p>This is the item description.</p>",
+                        "nullable": true
                     },
                     "language": {
-                        "$ref": "#/components/schemas/Language"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/LanguageResource"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "Present only when language relation is loaded."
                     },
                     "media": {
-                        "$ref": "#/components/schemas/Media"
+                        "description": "Present only when media relation is loaded.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MediumResource"
+                        },
+                        "nullable": true
                     },
                     "categories": {
+                        "description": "Present only when categories relation is loaded.",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Category"
-                        }
+                            "$ref": "#/components/schemas/CategoryIndex"
+                        },
+                        "nullable": true
                     },
                     "links": {
+                        "description": "Present only when links relation is loaded.",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Link"
-                        }
+                            "$ref": "#/components/schemas/LinkResource"
+                        },
+                        "nullable": true
                     },
                     "relationships": {
+                        "description": "Omitted entirely if relations are not loaded or if no relationships exist.",
                         "type": "array",
                         "items": {
-                            "properties": {
-                                "relationship": {
-                                    "type": "string",
-                                    "example": "update"
-                                },
-                                "item": {
-                                    "$ref": "#/components/schemas/Item"
-                                }
-                            },
-                            "type": "object"
-                        }
+                            "$ref": "#/components/schemas/ItemRelationship"
+                        },
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
-            "Language": {
-                "title": "Language",
-                "description": "A Language that an item might be expressed in",
+            "LanguageResource": {
+                "title": "Language Resource",
+                "description": "A Language that something is expressed in. Can have items attached to it. Querying a language reveals all items in that language.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -665,10 +862,255 @@
                         "example": "français"
                     },
                     "items": {
+                        "oneOf": [
+                            {
+                                "description": "Array of simplified Item objects (purely to construct links)",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ItemIndex"
+                                }
+                            },
+                            {
+                                "description": "Array of detailed Item objects (when fetching a single category)",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ItemResource"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "LinkResource": {
+                "title": "Link Resource",
+                "description": "Links to be attached to items. Will become more extensive feature later on.",
+                "properties": {
+                    "anchor": {
+                        "type": "string",
+                        "example": "Visit the best site ever"
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "https://www.planetegem.be"
+                    }
+                },
+                "type": "object"
+            },
+            "MediumIndex": {
+                "title": "Medium Index",
+                "description": "Index of all media, where a medium is a polymorphic container for media files.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "image",
+                        "enum": [
+                            "image",
+                            "image-list",
+                            "carousel",
+                            "video",
+                            "gifv",
+                            "3d-model"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "MediumResource": {
+                "title": "Medium Resource",
+                "description": "Polymorphic media container holding image or video files or 3D assets",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-14T15:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-14T15:00:00.000000Z"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "image",
+                        "enum": [
+                            "none",
+                            "image",
+                            "image-list",
+                            "carousel",
+                            "video",
+                            "gifv",
+                            "3d-model"
+                        ]
+                    },
+                    "files": {
+                        "description": "Dynamic array that can contain files of the requested type (image, video or 3D asset)",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Item"
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/ImageResource"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/VideoResource"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/Model3DResource"
+                                }
+                            ]
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "Model3DResource": {
+                "title": "3D Model Resource",
+                "description": "3D assets saved on the server: their paths and meta data (including a path to a poster image).",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "dancing_naked_man"
+                    },
+                    "path": {
+                        "type": "string",
+                        "example": "https://example.com/storage/models/dancing_naked_man.glb"
+                    },
+                    "alt": {
+                        "type": "string",
+                        "example": "3D render of dancing men",
+                        "nullable": true
+                    },
+                    "poster": {
+                        "type": "string",
+                        "example": "https://example.com/storage/posters/image_of_a_dancing_man.webp"
+                    },
+                    "properties": {
+                        "properties": {
+                            "mime": {
+                                "type": "string",
+                                "example": "model/gltf-binary"
+                            },
+                            "size": {
+                                "type": "integer",
+                                "example": 10234
+                            },
+                            "triangle_count": {
+                                "type": "integer",
+                                "example": 550
+                            },
+                            "bounding_box": {
+                                "description": "Dimensions along X, Y, and Z axes",
+                                "properties": {
+                                    "x": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1.2
+                                    },
+                                    "y": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 2.5
+                                    },
+                                    "z": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 0.8
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "has_animations": {
+                                "type": "boolean",
+                                "example": false
+                            },
+                            "animation_names": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "example": [
+                                    "Walk",
+                                    "Idle",
+                                    "Open"
+                                ],
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "VideoResource": {
+                "title": "Video Resource",
+                "description": "Videos saved on the server: their paths and meta data (including a path to a poster image).",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "dancing_naked_man"
+                    },
+                    "path": {
+                        "type": "string",
+                        "example": "https://example.com/storage/videos/dancing_naked_man.webm"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "The dance of the naked men",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "What started as an office party, quickly devolved into naked pile of writhing bodies.",
+                        "nullable": true
+                    },
+                    "poster": {
+                        "type": "string",
+                        "example": "https://example.com/storage/posters/image_of_a_dancing_man.webp"
+                    },
+                    "properties": {
+                        "properties": {
+                            "mime": {
+                                "type": "string",
+                                "example": "video/webm"
+                            },
+                            "size": {
+                                "type": "integer",
+                                "example": 10234
+                            },
+                            "width": {
+                                "type": "integer",
+                                "example": 550
+                            },
+                            "height": {
+                                "type": "integer",
+                                "example": 1000
+                            },
+                            "aspect_ratio": {
+                                "type": "number",
+                                "example": 0.55
+                            },
+                            "duration": {
+                                "type": "number",
+                                "example": 6.5
+                            },
+                            "has_audio": {
+                                "type": "boolean",
+                                "example": false
+                            },
+                            "loop": {
+                                "type": "boolean",
+                                "example": true
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"
@@ -677,16 +1119,20 @@
     },
     "tags": [
         {
-            "name": "Items",
-            "description": "Manage inventory items, their updates and possible derivatives"
-        },
-        {
             "name": "Categories",
             "description": "Manage inventory categories (used to label items)"
         },
         {
+            "name": "Items",
+            "description": "Manage inventory items, their updates and possible derivatives"
+        },
+        {
             "name": "Languages",
             "description": "Manage inventory items, based filtered by language"
+        },
+        {
+            "name": "Media",
+            "description": "Elements from the media library; typically attached to items, but can also exist independantly."
         }
     ]
 }

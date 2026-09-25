@@ -20,8 +20,6 @@ class Category extends Model
         'hidden'
     ];
 
-
-
     public function items()
     {
         return $this->belongsToMany(Item::class);
@@ -41,6 +39,7 @@ class Category extends Model
                 $count++;
             }
 
+            // TO INVESTIGATE: BUG WHERE UPDATING THE MODEL ALTERS THE SLUG
             $model->slug = $slug;
         });
     }

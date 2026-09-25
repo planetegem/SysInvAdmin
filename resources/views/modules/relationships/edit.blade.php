@@ -2,7 +2,7 @@
 
 @section('db-form')
 
-    <x-form.update-form :confirm-route="query_route('relationships.update', $relationship)" name="relationship-update-form"
+    <x-module.container.update :confirm-route="query_route('relationships.update', $relationship)" name="relationship-update-form"
         :cancel-route="query_route('relationships.index')" class="relationship">
 
         <x-slot:header>
@@ -17,12 +17,12 @@
         </x-slot:subheader>
 
         <x-slot:body>
-            <x-form.templates.relationship :relationship="$relationship" />
+            <x-module.relationship :relationship="$relationship" />
         </x-slot:body>
 
-    </x-form.update-form>
+    </x-module.container.update>
 
-    <x-form.delete-form :confirm-route="query_route('relationships.destroy', $relationship)">
+    <x-module.container.delete :confirm-route="query_route('relationships.destroy', $relationship)">
 
         <x-slot:header>
             {!! __('relationship.header.delete') !!}
@@ -33,6 +33,6 @@
             @choice('relationship.message.warning_attached_items', $relationship->getUsageCount(), ['count' => $relationship->getUsageCount()])
         </x-slot:message>
 
-    </x-form.delete-form>
+    </x-module.container.delete>
 
 @endsection

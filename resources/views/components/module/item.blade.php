@@ -14,12 +14,12 @@
     </x-input.dropdown>
 </div>
 
-<x-input.blocks.quill-editor name="item_description" id="item-description" :content="$item->firstContentBlock()"
+<x-input.blocks.quill-editor name="item_description" id="item-description" :content="$item->contentBlock"
     label="item.input.description" tooltip="tooltip.item.description" required />
 
 <!-- MEDIA -->
 <x-layout.foldable-divider title="Item media" open>
-    <x-input.blocks.media-manager :item="$item" id="item_media" />
+    <x-manager.media-manager :medium="$item->medium" id="item_media" />
 </x-layout.foldable-divider>
 
 <!-- CATEGORIES -->
