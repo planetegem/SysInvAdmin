@@ -39,6 +39,9 @@ When SysInvAdmin is installed, it automatically comes with OpenAPI / Swagger doc
 ### Image conversion
 [TO DO]
 
+## DB structure
+In the mood for some diagram fun? Have a look at the [mermaid diagrams for SysInvAdmin](.github/DB_EVOLVE.MD)
+
 ## Features
 ### Current features
 - Login system, with support for a 'remember me' token.
