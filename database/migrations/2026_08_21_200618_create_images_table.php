@@ -31,10 +31,7 @@ return new class extends Migration {
             $table->string('clip_type')->nullable();
             $table->json('clip_path')->nullable();
 
-            // Fallbacks: to be implemented
-            // 1. placeholder might be used for blurhash string or similar; to be decided 
-            $table->string('placeholder')->nullable();
-            // 2. Variants might hold paths to resized images (for use in srcset)
+            // Variants might hold paths to resized images
             $table->json('variants')->nullable();
 
             // Link to medium: should cascade on delete

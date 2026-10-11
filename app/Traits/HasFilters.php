@@ -19,11 +19,11 @@ trait HasFilters
                 $q->where(function (Builder $sub) use ($short_names, $ids) {
                     // Identify language by short_name
                     if (!empty($short_names)) {
-                        $sub->whereIn('language.short_name', $short_names);
+                        $sub->whereIn('languages.short_name', $short_names);
                     }
                     // Or identify language by id
                     if (!empty($ids)) {
-                        !empty($short_names) ? $sub->orWhereIn('language.id', $ids) : $sub->whereIn('id', $ids);
+                        !empty($short_names) ? $sub->orWhereIn('languages.id', $ids) : $sub->whereIn('id', $ids);
                     }
                 });
             }

@@ -27,24 +27,42 @@ class ImageResource extends JsonResource
                     new OA\Property(property: 'height', type: 'integer', example: 1000),
                     new OA\Property(property: 'aspect_ratio', type: 'number', example: 0.55)
                 ]
-            )
+            ),
+            new OA\Property(
+                property: 'variants',
+                type: 'object',
+                description: 'Map of size keys to full image URLs',
+                additionalProperties: new OA\AdditionalProperties(type: 'string'),
+                example: [
+                    'placeholder' => 'https://example.com/storage/images/image_of_naked_man_placeholder.webp',
+                    'thumbnail' => 'https://example.com/storage/images/image_of_naked_man_thumbnail.webp',
+                    'medium' => 'https://example.com/storage/images/image_of_naked_man_medium.webp',
+                    'large' => 'https://example.com/storage/images/image_of_naked_man_large.webp',
+                ]
+            ),
         ]
     )]
     public function toArray(Request $request): array
     {
-        $response = [
+        $variants = [];
+        if (!empty($this->variants) && is_array($this->variants)) {
+            foreach ($this->variants as $key => $path) {
+                $variants[$key] = asset("storage/{$path}");
+            }
+        }
+
+        return [
             'name' => $this->name,
             'path' => asset("storage/{$this->path}"),
             'alt' => $this->alt,
+            'variants' => $variants,
             'properties' => [
                 'mime' => $this->mime,
                 'size' => $this->size,
                 'width' => $this->width,
                 'height' => $this->height,
-                'aspect_ratio' => $this->aspect_ratio
+                'aspect_ratio' => $this->aspect_ratio,
             ]
         ];
-
-        return $response;
     }
 }

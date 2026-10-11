@@ -52,18 +52,25 @@ class Image extends Model
         static::saving(function (Image $image) {
             if ($image->isDirty('path') && !empty($image->path)) {
                 $image->setMetadata();
+                $image->setVariants();
             }
         });
         static::deleting(function (Image $image) {
             if (!empty($image->path))
                 Storage::disk('uploads')->delete($image->path);
+
+            // Clean up generated variants
+            if (!empty($image->variants) && is_array($image->variants)) {
+                foreach ($image->variants as $variantPath) {
+                    Storage::disk('uploads')->delete($variantPath);
+                }
+            }
         });
     }
 
     // 2. If path was changed, reset all meta data
     private function setMetadata(): void
     {
-
         // Get the extension to know how to read the file
         $extension = pathinfo($this->path, PATHINFO_EXTENSION);
 
@@ -106,7 +113,6 @@ class Image extends Model
                     $this->aspect_ratio = round($width / $height, 4);
                 }
             }
-
         }
 
         // 2. Handle standard rasterized images (jpg, png, webp)
@@ -127,6 +133,97 @@ class Image extends Model
 
         // Get mime type
         $this->mime = $imageData['mime'];
+    }
+
+    // Create image variants, called when path is dirty
+    private function setVariants(): void
+    {
+        // Return early in case of svg
+        if ($this->mime == 'image/svg+xml')
+            return;
+
+        // Get absolute path of the image to work on
+        $disk = Storage::disk('uploads');
+        $absolutePath = $disk->path($this->path);
+
+        if (!file_exists($absolutePath))
+            return;
+
+        // Set variant targets
+        $targetWidths = [
+            'placeholder' => 20,
+            'thumbnail' => 300,
+            'medium' => 800,
+            'large' => 1200
+        ];
+
+        // Prepare some handy variables
+        $generatedVariants = [];
+        $pathInfo = pathinfo($this->path);
+        $directory = $pathInfo['dirname'];
+        $filename = $pathInfo['filename'];
+        $extension = $pathInfo['extension'];
+
+        // Load the image
+        $srcImage = match ($this->mime) {
+            'image/jpeg' => @imagecreatefromjpeg($absolutePath),
+            'image/png' => @imagecreatefrompng($absolutePath),
+            'image/webp' => @imagecreatefromwebp($absolutePath),
+            default => null,
+        };
+
+        if (!$srcImage)
+            return;
+
+        $originalWidth = imagesx($srcImage);
+        $originalHeight = imagesy($srcImage);
+
+        // Generate the variants
+        foreach ($targetWidths as $key => $targetWidth) {
+            // Don't create the variant if original image is smaller than target width
+            if ($originalWidth <= $targetWidth)
+                continue;
+
+            // Calculate new height
+            $ratio = $targetWidth / $originalWidth;
+            $targetHeight = (int) round($originalHeight * $ratio);
+
+            $resizedImage = imagecreatetruecolor($targetWidth, $targetHeight);
+
+            // Retain transparency for WebP / PNG
+            imagealphablending($resizedImage, false);
+            imagesavealpha($resizedImage, true);
+
+            // Copy the image into the resized frame
+            imagecopyresampled(
+                $resizedImage,
+                $srcImage,
+                0,
+                0,
+                0,
+                0,
+                $targetWidth,
+                $targetHeight,
+                $originalWidth,
+                $originalHeight
+            );
+
+            // Construct output path
+            $variantRelativePath = "{$directory}/{$filename}_{$key}.{$extension}";
+            $variantAbsolutePath = $disk->path($variantRelativePath);
+
+            // Save resized image matching format
+            match ($this->mime) {
+                'image/jpeg' => imagejpeg($resizedImage, $variantAbsolutePath, 85),
+                'image/png' => imagepng($resizedImage, $variantAbsolutePath, 6),
+                'image/webp' => imagewebp($resizedImage, $variantAbsolutePath, 80),
+            };
+
+            // Clean and finish
+            imagedestroy($resizedImage);
+            $generatedVariants[$key] = $variantRelativePath;
+        }
+        $this->variants = $generatedVariants;
     }
 
     // FILE PROCESSOR: SAVES IMAGES TO DRIVE (IF REQUIRED)

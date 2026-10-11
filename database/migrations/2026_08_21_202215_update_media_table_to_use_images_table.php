@@ -12,16 +12,22 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Move everything from the media table to images table
-        $media = Medium::all();
+        // Temporarily allocate memory for heavy batch image resizing
+        ini_set('memory_limit', '512M');
 
-        foreach ($media as $medium) {
-            $image = $medium->images()->create([
+        // Stream records one by one instead of loading all into RAM
+        Medium::lazy()->each(function ($medium) {
+            $image = new Image([
                 'path' => $medium->file_path,
                 'name' => pathinfo($medium->file_name, PATHINFO_FILENAME),
-                'alt' => $medium->alt
+                'alt' => $medium->alt,
             ]);
-        }
+
+            $medium->images()->save($image);
+
+            // Force PHP memory cleanup after each image
+            gc_collect_cycles();
+        });
 
         // Clean media table
         Schema::table('media', function (Blueprint $table) {
