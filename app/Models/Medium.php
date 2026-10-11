@@ -132,7 +132,7 @@ class Medium extends Model
     public function getContentAttribute()
     {
         $relation = static::$typeMap[$this->type]['relation'] ?? null;
-        return $relation ? $this->{$relation} : collect();
+        return $relation ? $this->{$relation}->sortBy('name')->values() : collect();
     }
 
     // Purge content, triggering their static deleting hooks for file cleaning
