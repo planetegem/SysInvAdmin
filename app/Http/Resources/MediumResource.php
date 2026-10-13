@@ -45,9 +45,15 @@ class MediumResource extends JsonResource
     protected function resolveFiles()
     {
         return match ($this->type) {
-            'image', 'image-list', 'carousel' => ImageResource::collection($this->whenLoaded('images')),
-            'video', 'gifv' => VideoResource::collection($this->whenLoaded('videos')),
-            '3d-model' => Model3DResource::collection($this->whenLoaded('models3d')),
+            'image', 'image-list', 'carousel' => ImageResource::collection(
+                $this->whenLoaded('images', fn($images) => $images->sortBy('name')->values())
+            ),
+            'video', 'gifv' => VideoResource::collection(
+                $this->whenLoaded('videos', fn($videos) => $videos->sortBy('name')->values())
+            ),
+            '3d-model' => Model3DResource::collection(
+                $this->whenLoaded('models3d', fn($models) => $models->sortBy('name')->values())
+            ),
             default => [],
         };
     }
