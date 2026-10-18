@@ -27,6 +27,5 @@
 </x-layout.section-divider>
 
 <script type="module">
-    import RelationshipForm from "/js/relationship-form.js";
-    const relationshipForm = new RelationshipForm();
+    const relationshipModule = new RelationshipModule();
 </script>

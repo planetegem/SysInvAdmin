@@ -120,15 +120,6 @@ class ItemController extends Controller
         }
     }
 
-    // Process item relationships
-    private function setRelationships(array $validated, Item $item)
-    {
-        // 1. Clear all established relations
-
-    }
-
-
-
     private function storeAndUpdate(Request $request, Item $item)
     {
         // 1. Categories

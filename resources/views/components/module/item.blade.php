@@ -43,4 +43,4 @@ $selection = array_map(fn($i): string => $i['name'], $categories->toArray());
 </x-layout.foldable-divider>
 
 <!-- RELATIONSHIP/TYPE -->
-<x-input.blocks.relationship-manager id="item_relationships" :item="$item" />
+<x-manager.relationship-manager id="item_relationships" :item="$item" />

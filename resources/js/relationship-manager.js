@@ -1,8 +1,6 @@
 export default class RelationshipManager {
 
     constructor(id, relationships = []) {
-
-        // Prepare some elements
         this.id = id;
         this.container = document.getElementById(id);
         this.template = this.container.querySelector("template");
@@ -14,15 +12,16 @@ export default class RelationshipManager {
         this.add_button.addEventListener("click", () => this.createRelationshipElement());
 
         // Populate with elements in case of existing item with existing relationships
-        relationships.forEach((relationship) => this.createRelationshipElement(relationship.type, relationship.item));
+        if (relationships.length > 0)
+            relationships.forEach((relationship) => this.createRelationshipElement(relationship.type, relationship.item, false));
 
-        // Update UI even if no elements were created
-        if (relationships.length == 0) this.updateUI();
+        // Update UI on initialization
+        this.updateUI();
     }
 
-    createRelationshipElement(relationship = null, item = null) {
+    createRelationshipElement(relationship = null, item = null, shouldUpdateUi = true) {
         // Get the template
-        const clone = document.importNode(this.template.content, true);
+        const clone = this.template.content.cloneNode(true);
         const li = clone.querySelector("li.item-relationship");
         this.ol.appendChild(li);
 
@@ -47,15 +46,14 @@ export default class RelationshipManager {
         if (item) target_selector.value = item;
 
         // Refresh UI
-        this.updateUI();
+        if (shouldUpdateUi) this.updateUI();
     }
 
     updateUI() {
-        // Get all relationship elements
-        const relationships = this.ol.querySelectorAll("li.item-relationship");
+        const relationships = Array.from(this.ol.querySelectorAll("li.item-relationship"));
+        const hasRelationships = relationships.length > 0;
 
         // Toggle fallback if necessary
-        const hasRelationships = relationships.length > 0;
         this.fallback_text.classList.toggle("hidden", hasRelationships);
         this.ol.classList.toggle("hidden", !hasRelationships);
 

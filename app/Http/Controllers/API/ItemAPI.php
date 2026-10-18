@@ -224,7 +224,6 @@ class ItemAPI extends Controller
             'slug' => 'slug',
             default => abort(400, 'Invalid identifier type provided.'),
         };
-
         $item = Item::where($column, $id)->with(
             array_merge(
                 Item::getBaseCompanions(),
@@ -232,7 +231,6 @@ class ItemAPI extends Controller
                 Item::getPrefixedCompanions('parents')
             )
         )->firstOrFail();
-
         return new ItemResource($item);
     }
 }

@@ -37,7 +37,7 @@ class ItemRelationship extends Pivot
         }
 
         $isObject = ($this->direct_object_item_id === $itemId);
-        $prefix = $isObject ? 'subject' : 'object';
+        $prefix = $isObject ? 'object' : 'subject';
 
         return (object) [
             'label' => $rel->{"{$prefix}_label"},
@@ -68,6 +68,7 @@ class ItemRelationship extends Pivot
 
         // Get target item
         $targetId = $validatedRow['item'];
+
 
         // Get direction of relationship
         if ($relationshipType->subject_label === $chosenLabel) {

@@ -32,14 +32,13 @@
         </button>
     </main>
     <script type="module">
-        import RelationshipManager from "/js/relationship-manager.js";
         const relationshipManager = new RelationshipManager(
             "{{ $id }}",
             [
                 @foreach ($item->relationships() as $rel)
                     {
                         type: "{{ $rel['relationship']->consolidated_name }}",
-                        item: "{{ $rel['item'] }}"
+                        item: "{{ $rel['item']->id }}"
                     },
                 @endforeach
             ]

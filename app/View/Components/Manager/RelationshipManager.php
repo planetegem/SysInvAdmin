@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Input\Blocks;
+namespace App\View\Components\Manager;
 
 use App\Models\Item;
 use App\Models\Relationship;
@@ -42,12 +42,11 @@ class RelationshipManager extends Component
             return $result;
         });
         
-
         $this->possibleRelationships = array_merge(...$possibleRelationships->toArray());
     }
 
     public function render(): View|Closure|string
     {
-        return view('components.input.blocks.relationship-manager');
+        return view('components.manager.relationship-manager');
     }
 }

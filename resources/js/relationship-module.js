@@ -1,7 +1,7 @@
 // USED IN FORMS TO CREATE AND UPDATE RELATIONSHIPS
 // Just adds some minor js interactions to the UI
 
-export default class RelationshipForm {
+export default class RelationshipModule {
 
     constructor() {
 
